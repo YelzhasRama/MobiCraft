@@ -3,28 +3,29 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 
 @Entity('portfolio')
 export class PortfolioEntity {
-  @PrimaryGeneratedColumn('uuid', {
+  @PrimaryGeneratedColumn({
     name: 'id',
+    type: 'bigint',
   })
-  id: string;
+  id: number;
 
   @Column({
     name: 'user_id',
-    type: 'uuid',
+    type: 'bigint',
   })
-  userId: string;
+  userId: number;
 
   @ManyToOne(() => UserEntity, (user) => user.portfolios, {
-    onDelete: 'CASCADE', // Удаление портфолио при удалении пользователя
+    onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
@@ -39,7 +40,7 @@ export class PortfolioEntity {
   @Column({
     name: 'description',
     type: 'text',
-    nullable: true, // Описание может быть необязательным
+    nullable: true,
   })
   description: string;
 

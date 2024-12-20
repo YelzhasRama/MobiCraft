@@ -7,21 +7,22 @@ import {
 
 export class CreateReviewsTable1734353686461 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Создание таблицы `reviews`
     await queryRunner.createTable(
       new Table({
         name: 'reviews',
         columns: [
           {
             name: 'id',
-            type: 'uuid',
+            type: 'bigint',
             isPrimary: true,
-            generationStrategy: 'uuid',
-            default: 'uuid_generate_v4()',
+            isGenerated: true,
+            generationStrategy: 'increment',
           },
           {
             name: 'rating',
-            type: 'integer',
+            type: 'decimal',
+            precision: 5,
+            scale: 2,
           },
           {
             name: 'comment',
@@ -45,62 +46,48 @@ export class CreateReviewsTable1734353686461 implements MigrationInterface {
           },
           {
             name: 'user_id',
-            type: 'uuid',
+            type: 'bigint',
           },
           {
-            name: 'reviewer_id',
-            type: 'uuid',
-            isNullable: true,
+            name: 'order_id',
+            type: 'bigint',
           },
         ],
       }),
       true,
     );
 
-    // Внешний ключ на `users` (user_id)
     await queryRunner.createForeignKey(
       'reviews',
       new TableForeignKey({
         columnNames: ['user_id'],
         referencedTableName: 'users',
         referencedColumnNames: ['id'],
-        onDelete: 'CASCADE', // Удаление всех отзывов при удалении пользователя
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       }),
     );
 
-    // Внешний ключ на `users` (reviewer_id)
     await queryRunner.createForeignKey(
       'reviews',
       new TableForeignKey({
-        columnNames: ['reviewer_id'],
-        referencedTableName: 'users',
+        columnNames: ['order_id'],
+        referencedTableName: 'orders',
         referencedColumnNames: ['id'],
-        onDelete: 'SET NULL', // Оставить отзыв без рецензента при удалении пользователя
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Удаление внешних ключей и таблицы `reviews`
     const table = await queryRunner.getTable('reviews');
     if (table) {
-      const userForeignKey = table.foreignKeys.find(
-        (fk) => fk.columnNames.indexOf('user_id') !== -1,
-      );
-      if (userForeignKey) {
-        await queryRunner.dropForeignKey('reviews', userForeignKey);
-      }
-
-      const reviewerForeignKey = table.foreignKeys.find(
-        (fk) => fk.columnNames.indexOf('reviewer_id') !== -1,
-      );
-      if (reviewerForeignKey) {
-        await queryRunner.dropForeignKey('reviews', reviewerForeignKey);
+      const foreignKeys = table.foreignKeys;
+      for (const fk of foreignKeys) {
+        await queryRunner.dropForeignKey('reviews', fk);
       }
     }
-
     await queryRunner.dropTable('reviews');
   }
 }

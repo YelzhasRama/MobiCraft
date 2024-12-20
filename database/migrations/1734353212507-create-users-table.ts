@@ -1,22 +1,23 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableIndex,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
 
 export class CreateUsersTable1734353212507 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // Создание типов для ролей и гендера
+    await queryRunner.query(`
+      CREATE TYPE user_role_enum AS ENUM ('Admin', 'User', 'Manager');
+      CREATE TYPE gender_enum AS ENUM ('Male', 'Female', 'Other');
+    `);
+
     await queryRunner.createTable(
       new Table({
         name: 'users',
         columns: [
           {
             name: 'id',
-            type: 'uuid',
+            type: 'bigint',
             isPrimary: true,
-            generationStrategy: 'uuid',
-            default: 'uuid_generate_v4()',
+            isGenerated: true,
+            generationStrategy: 'increment',
           },
           {
             name: 'email',

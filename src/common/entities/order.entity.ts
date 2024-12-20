@@ -15,10 +15,11 @@ import { ResponseEntity } from './response.entity';
 
 @Entity('orders')
 export class OrderEntity {
-  @PrimaryGeneratedColumn('uuid', {
+  @PrimaryGeneratedColumn({
     name: 'id',
+    type: 'bigint',
   })
-  id: string;
+  id: number;
 
   @Column({
     name: 'title',

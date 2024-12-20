@@ -20,7 +20,7 @@ export class CreateCategoriesUsersTable1734535059965
           },
           {
             name: 'user_id',
-            type: 'uuid',
+            type: 'bigint',
             isPrimary: true,
           },
         ],

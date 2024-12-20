@@ -7,17 +7,16 @@ import {
 
 export class CreateResponsesTable1734353598797 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Создание таблицы `responses`
     await queryRunner.createTable(
       new Table({
         name: 'responses',
         columns: [
           {
             name: 'id',
-            type: 'uuid',
+            type: 'bigint',
             isPrimary: true,
-            generationStrategy: 'uuid',
-            default: 'uuid_generate_v4()',
+            isGenerated: true,
+            generationStrategy: 'increment',
           },
           {
             name: 'message',
@@ -26,7 +25,7 @@ export class CreateResponsesTable1734353598797 implements MigrationInterface {
           {
             name: 'status',
             type: 'enum',
-            enum: ['PENDING', 'ACCEPTED', 'REJECTED'], // Замените на фактические значения ResponseStatus
+            enum: ['PENDING', 'ACCEPTED', 'REJECTED'],
             default: `'PENDING'`,
           },
           {
@@ -46,18 +45,17 @@ export class CreateResponsesTable1734353598797 implements MigrationInterface {
           },
           {
             name: 'order_id',
-            type: 'uuid',
+            type: 'bigint',
           },
           {
             name: 'mobilograph_id',
-            type: 'uuid',
+            type: 'bigint',
           },
         ],
       }),
       true,
     );
 
-    // Внешний ключ на `orders` (order_id)
     await queryRunner.createForeignKey(
       'responses',
       new TableForeignKey({
@@ -69,7 +67,6 @@ export class CreateResponsesTable1734353598797 implements MigrationInterface {
       }),
     );
 
-    // Внешний ключ на `users` (mobilograph_id)
     await queryRunner.createForeignKey(
       'responses',
       new TableForeignKey({
@@ -83,24 +80,13 @@ export class CreateResponsesTable1734353598797 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Удаление внешних ключей и таблицы `responses`
     const table = await queryRunner.getTable('responses');
     if (table) {
-      const orderForeignKey = table.foreignKeys.find(
-        (fk) => fk.columnNames.indexOf('order_id') !== -1,
-      );
-      if (orderForeignKey) {
-        await queryRunner.dropForeignKey('responses', orderForeignKey);
-      }
-
-      const mobilographForeignKey = table.foreignKeys.find(
-        (fk) => fk.columnNames.indexOf('mobilograph_id') !== -1,
-      );
-      if (mobilographForeignKey) {
-        await queryRunner.dropForeignKey('responses', mobilographForeignKey);
+      const foreignKeys = table.foreignKeys;
+      for (const fk of foreignKeys) {
+        await queryRunner.dropForeignKey('responses', fk);
       }
     }
-
     await queryRunner.dropTable('responses');
   }
 }

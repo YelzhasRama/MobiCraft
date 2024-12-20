@@ -12,10 +12,11 @@ import { UserEntity } from './user.entity';
 
 @Entity('reviews')
 export class ReviewEntity {
-  @PrimaryGeneratedColumn('uuid', {
+  @PrimaryGeneratedColumn({
     name: 'id',
+    type: 'bigint',
   })
-  id: string;
+  id: number;
 
   @Column({
     name: 'rating',

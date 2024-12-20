@@ -14,10 +14,11 @@ import { ResponseStatus } from '../constants/response-status';
 
 @Entity('responses')
 export class ResponseEntity {
-  @PrimaryGeneratedColumn('uuid', {
+  @PrimaryGeneratedColumn({
     name: 'id',
+    type: 'bigint',
   })
-  id: string;
+  id: number;
 
   @Column({
     name: 'message',

@@ -7,17 +7,16 @@ import {
 
 export class CreateOrdersTable1734353384213 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Создание таблицы `orders`
     await queryRunner.createTable(
       new Table({
         name: 'orders',
         columns: [
           {
             name: 'id',
-            type: 'uuid',
+            type: 'bigint',
             isPrimary: true,
-            generationStrategy: 'uuid',
-            default: 'uuid_generate_v4()',
+            isGenerated: true,
+            generationStrategy: 'increment',
           },
           {
             name: 'title',
@@ -58,7 +57,7 @@ export class CreateOrdersTable1734353384213 implements MigrationInterface {
           },
           {
             name: 'client_id',
-            type: 'uuid',
+            type: 'bigint',
           },
           {
             name: 'category_id',
@@ -70,7 +69,6 @@ export class CreateOrdersTable1734353384213 implements MigrationInterface {
       true,
     );
 
-    // Внешний ключ на `users` (client_id)
     await queryRunner.createForeignKey(
       'orders',
       new TableForeignKey({
@@ -82,7 +80,6 @@ export class CreateOrdersTable1734353384213 implements MigrationInterface {
       }),
     );
 
-    // Внешний ключ на `categories` (category_id)
     await queryRunner.createForeignKey(
       'orders',
       new TableForeignKey({
@@ -96,16 +93,13 @@ export class CreateOrdersTable1734353384213 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Удаление таблицы `orders`
     const table = await queryRunner.getTable('orders');
     if (table) {
-      // Удаление всех внешних ключей
       const foreignKeys = table.foreignKeys;
       for (const fk of foreignKeys) {
         await queryRunner.dropForeignKey('orders', fk);
       }
     }
-
     await queryRunner.dropTable('orders');
   }
 }

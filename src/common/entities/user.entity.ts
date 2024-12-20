@@ -19,10 +19,11 @@ import { ReviewEntity } from './review.entity';
 
 @Entity('users')
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid', {
+  @PrimaryGeneratedColumn({
     name: 'id',
+    type: 'bigint',
   })
-  id: string;
+  id: number;
 
   @Column({
     name: 'email',
