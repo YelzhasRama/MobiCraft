@@ -8,25 +8,30 @@ import {
   Body,
   NotFoundException,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { PortfolioService } from '../service/portfolio.service';
 import { CreatePortfolioDto } from '../dto/create-portfolio.dto';
 import { UpdatePortfolioDto } from '../dto/update-portfolio.dto';
+import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
 
 @Controller('portfolio')
 export class PortfolioController {
   constructor(private readonly portfolioService: PortfolioService) {}
 
+  @UseGuards(UserAccessJwtGuard)
   @Post()
   async create(@Body() createPortfolioDto: CreatePortfolioDto) {
     return this.portfolioService.create(createPortfolioDto);
   }
 
+  @UseGuards(UserAccessJwtGuard)
   @Get()
   async findAll() {
     return this.portfolioService.findAll();
   }
 
+  @UseGuards(UserAccessJwtGuard)
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const portfolio = await this.portfolioService.findOne(id);
@@ -36,6 +41,7 @@ export class PortfolioController {
     return portfolio;
   }
 
+  @UseGuards(UserAccessJwtGuard)
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -48,6 +54,7 @@ export class PortfolioController {
     return updated;
   }
 
+  @UseGuards(UserAccessJwtGuard)
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
     const deleted = await this.portfolioService.remove(id);

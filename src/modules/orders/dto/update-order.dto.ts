@@ -15,17 +15,23 @@ export class UpdateOrderDto {
 
   @IsOptional()
   @IsNumber()
-  budget?: number;
+  totalBudget?: number; // Обновлённое поле totalBudget
 
   @IsOptional()
   @IsString()
-  location?: string;
+  city?: string; // Обновлённое поле city
 
   @IsOptional()
-  @IsNumber()
-  clientId?: string;
+  @IsString()
+  chronometry?: string; // Обновлённое поле chronometry
 
   @IsOptional()
-  @IsNumber()
-  categoryId?: string;
+  @IsString()
+  clientName?: string; // Обновлённое поле clientName
+
+  @IsOptional()
+  clientId?: string; // Обновлённое поле clientId
+
+  @IsOptional()
+  categoryIds?: string[]; // Массив для категорий
 }

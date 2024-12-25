@@ -10,6 +10,11 @@ export class UsersRepository extends Repository<UserEntity> {
     super(UserEntity, dataSource.createEntityManager());
   }
 
+  getOneByEmail(email: string) {
+    const user = this.findOne({ where: { email } });
+    return user;
+  }
+
   async createUser(createUserDto: CreateUserDto) {
     const user = this.create(createUserDto);
     return this.save(user);

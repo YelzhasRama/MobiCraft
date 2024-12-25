@@ -3,11 +3,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToMany,
+  JoinTable,
   OneToMany,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { CategoryEntity } from './category.entity';
@@ -37,21 +39,40 @@ export class OrderEntity {
     name: 'shooting_date',
     type: 'date',
   })
-  shootingDate: Date;
+  shootingDate: string;
 
   @Column({
-    name: 'budget',
+    name: 'city',
+    type: 'text',
+  })
+  city: string;
+
+  @Column({
+    name: 'chronometry',
+    type: 'text',
+  })
+  chronometry: string;
+
+  @Column({
+    name: 'client_name',
+    type: 'text',
+  })
+  clientName: string;
+
+  @Column({
+    name: 'views_count',
+    type: 'integer',
+    default: 0,
+  })
+  viewsCount: number;
+
+  @Column({
+    name: 'total_budget',
     type: 'decimal',
     precision: 10,
     scale: 2,
   })
-  budget: number;
-
-  @Column({
-    name: 'location',
-    type: 'text',
-  })
-  location: string;
+  totalBudget: number;
 
   @CreateDateColumn({
     name: 'created_at',
@@ -81,13 +102,13 @@ export class OrderEntity {
   @JoinColumn({ name: 'client_id' })
   client: UserEntity;
 
-  @ManyToOne(() => CategoryEntity, (category) => category.orders, {
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE',
-    nullable: true,
+  @ManyToMany(() => CategoryEntity, (category) => category.orders)
+  @JoinTable({
+    name: 'order_categories',
+    joinColumns: [{ name: 'order_id', referencedColumnName: 'id' }],
+    inverseJoinColumns: [{ name: 'category_id', referencedColumnName: 'id' }],
   })
-  @JoinColumn({ name: 'category_id' })
-  category: CategoryEntity;
+  categories: CategoryEntity[];
 
   @OneToMany(() => ResponseEntity, (response) => response.order, {
     cascade: true,

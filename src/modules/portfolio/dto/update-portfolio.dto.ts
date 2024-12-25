@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsDate } from 'class-validator';
 
 export class UpdatePortfolioDto {
   @IsOptional()
@@ -8,4 +8,12 @@ export class UpdatePortfolioDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsDate()
+  shootDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
 }

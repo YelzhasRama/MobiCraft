@@ -65,5 +65,5 @@ export class ReviewEntity {
     nullable: true,
   })
   @JoinColumn({ name: 'reviewer_id' })
-  reviewer: UserEntity | null; // Пользователь, который оставил отзыв
+  reviewer: UserEntity | null; // Пользователь, которому оставлен отзыв
 }

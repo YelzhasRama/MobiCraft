@@ -20,12 +20,12 @@ export class CreateCategoriesTable1734352992473 implements MigrationInterface {
           {
             name: 'created_at',
             type: 'timestamptz',
-            default: 'now()',
+            default: 'CURRENT_TIMESTAMP',
           },
           {
             name: 'updated_at',
             type: 'timestamptz',
-            default: 'now()',
+            default: 'CURRENT_TIMESTAMP',
           },
           {
             name: 'deleted_at',

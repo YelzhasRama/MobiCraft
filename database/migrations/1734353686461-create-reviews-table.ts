@@ -20,9 +20,7 @@ export class CreateReviewsTable1734353686461 implements MigrationInterface {
           },
           {
             name: 'rating',
-            type: 'decimal',
-            precision: 5,
-            scale: 2,
+            type: 'integer',
           },
           {
             name: 'comment',
@@ -32,12 +30,12 @@ export class CreateReviewsTable1734353686461 implements MigrationInterface {
           {
             name: 'created_at',
             type: 'timestamptz',
-            default: 'now()',
+            default: 'CURRENT_TIMESTAMP',
           },
           {
             name: 'updated_at',
             type: 'timestamptz',
-            default: 'now()',
+            default: 'CURRENT_TIMESTAMP',
           },
           {
             name: 'deleted_at',
@@ -49,14 +47,16 @@ export class CreateReviewsTable1734353686461 implements MigrationInterface {
             type: 'bigint',
           },
           {
-            name: 'order_id',
+            name: 'reviewer_id',
             type: 'bigint',
+            isNullable: true, // поле может быть null для отзывов без рецензента
           },
         ],
       }),
       true,
     );
 
+    // Внешний ключ на user_id, который ссылается на таблицу users
     await queryRunner.createForeignKey(
       'reviews',
       new TableForeignKey({
@@ -68,13 +68,14 @@ export class CreateReviewsTable1734353686461 implements MigrationInterface {
       }),
     );
 
+    // Внешний ключ на reviewer_id, который ссылается на таблицу users
     await queryRunner.createForeignKey(
       'reviews',
       new TableForeignKey({
-        columnNames: ['order_id'],
-        referencedTableName: 'orders',
+        columnNames: ['reviewer_id'],
+        referencedTableName: 'users',
         referencedColumnNames: ['id'],
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL', // Если рецензент удален, оставляем значение null
         onUpdate: 'CASCADE',
       }),
     );

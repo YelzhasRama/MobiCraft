@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsDate } from 'class-validator';
 
 export class CreatePortfolioDto {
   @IsNotEmpty()
@@ -12,4 +12,12 @@ export class CreatePortfolioDto {
   @IsNotEmpty()
   @IsNumber()
   userId: number;
+
+  @IsOptional()
+  @IsDate()
+  shootDate?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
 }

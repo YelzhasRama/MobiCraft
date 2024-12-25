@@ -48,4 +48,12 @@ export class UpdateUserDto {
   @IsOptional()
   @IsNumber()
   rating?: number;
+
+  @IsOptional()
+  @IsString()
+  servicePrice?: string;
+
+  @IsOptional()
+  @IsString()
+  device?: string;
 }

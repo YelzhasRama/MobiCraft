@@ -24,13 +24,6 @@ export class PortfolioEntity {
   })
   userId: number;
 
-  @ManyToOne(() => UserEntity, (user) => user.portfolios, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
-  @JoinColumn({ name: 'user_id' })
-  user: UserEntity;
-
   @Column({
     name: 'title',
     type: 'text',
@@ -43,6 +36,20 @@ export class PortfolioEntity {
     nullable: true,
   })
   description: string;
+
+  @Column({
+    name: 'shoot_date',
+    type: 'date',
+    nullable: true,
+  })
+  shootDate: string;
+
+  @Column({
+    name: 'location',
+    type: 'text',
+    nullable: true,
+  })
+  location: string;
 
   @CreateDateColumn({
     name: 'created_at',
@@ -64,4 +71,11 @@ export class PortfolioEntity {
     nullable: true,
   })
   deletedAt: string | null;
+
+  @ManyToOne(() => UserEntity, (user) => user.portfolios, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: UserEntity;
 }

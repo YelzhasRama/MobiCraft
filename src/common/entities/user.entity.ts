@@ -96,6 +96,20 @@ export class UserEntity {
   })
   rating: number;
 
+  @Column({
+    name: 'service_price',
+    type: 'text',
+    nullable: true,
+  })
+  servicePrice: string;
+
+  @Column({
+    name: 'device',
+    type: 'text',
+    nullable: true,
+  })
+  device: string;
+
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamptz',
@@ -151,8 +165,8 @@ export class UserEntity {
   @OneToMany(() => ReviewEntity, (review) => review.user, {
     cascade: true,
   })
-  reviewsReceived: ReviewEntity[]; // Отзывы, полученные пользователем
+  reviewsReceived: ReviewEntity[]; // Пользователь, которому оставлен отзыв
 
   @OneToMany(() => ReviewEntity, (review) => review.reviewer)
-  reviewsGiven: ReviewEntity[]; // Отзывы, оставленные пользователем
+  reviewsGiven: ReviewEntity[]; // Пользователь, которому оставлен отзыв
 }

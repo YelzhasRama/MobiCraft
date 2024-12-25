@@ -1,9 +1,4 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableForeignKey,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
 export class CreateOrdersTable1734353384213 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -28,17 +23,30 @@ export class CreateOrdersTable1734353384213 implements MigrationInterface {
           },
           {
             name: 'shooting_date',
-            type: 'date',
+            type: 'text',
           },
           {
-            name: 'budget',
+            name: 'city',
+            type: 'text',
+          },
+          {
+            name: 'chronometry',
+            type: 'text',
+          },
+          {
+            name: 'client_name',
+            type: 'text',
+          },
+          {
+            name: 'views_count',
+            type: 'integer',
+            default: 0,
+          },
+          {
+            name: 'total_budget',
             type: 'decimal',
             precision: 10,
             scale: 2,
-          },
-          {
-            name: 'location',
-            type: 'text',
           },
           {
             name: 'created_at',
@@ -59,16 +67,12 @@ export class CreateOrdersTable1734353384213 implements MigrationInterface {
             name: 'client_id',
             type: 'bigint',
           },
-          {
-            name: 'category_id',
-            type: 'bigint',
-            isNullable: true,
-          },
         ],
       }),
       true,
     );
 
+    // Foreign key for client_id
     await queryRunner.createForeignKey(
       'orders',
       new TableForeignKey({
@@ -76,17 +80,6 @@ export class CreateOrdersTable1734353384213 implements MigrationInterface {
         referencedTableName: 'users',
         referencedColumnNames: ['id'],
         onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      }),
-    );
-
-    await queryRunner.createForeignKey(
-      'orders',
-      new TableForeignKey({
-        columnNames: ['category_id'],
-        referencedTableName: 'categories',
-        referencedColumnNames: ['id'],
-        onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       }),
     );

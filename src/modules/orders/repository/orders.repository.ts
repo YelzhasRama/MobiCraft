@@ -10,7 +10,7 @@ export class OrdersRepository extends Repository<OrderEntity> {
     super(OrderEntity, dataSource.createEntityManager());
   }
 
-  async createOrder(createOrderDto: CreateOrderDto): Promise<OrderEntity> {
+  async createOrder(createOrderDto: CreateOrderDto) {
     const order = this.create(createOrderDto);
     return this.save(order);
   }

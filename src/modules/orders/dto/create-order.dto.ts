@@ -8,16 +8,22 @@ export class CreateOrderDto {
   description: string;
 
   @IsDate()
-  shootingDate: Date;
+  shootingDate: string;
 
   @IsNumber()
-  budget: number;
+  totalBudget: number; // Убедитесь, что это поле соответствует `totalBudget` в сущности
 
   @IsString()
-  location: string;
+  city: string; // Изменено на 'city', как в сущности
 
-  clientId: string;
+  @IsString()
+  chronometry: string; // Изменено на 'chronometry', как в сущности
+
+  @IsString()
+  clientName: string; // Соответствует полю 'client_name' в сущности
+
+  clientId: string; // Идентификатор клиента, связанный с `UserEntity`
 
   @IsOptional()
-  categoryId?: string;
+  categoryIds?: string[]; // Массив идентификаторов категорий для связи ManyToMany
 }

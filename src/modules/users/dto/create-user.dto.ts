@@ -2,8 +2,8 @@ import {
   IsString,
   IsOptional,
   IsNumber,
-  IsEmail,
   IsEnum,
+  IsEmail,
 } from 'class-validator';
 import { UserRole } from '../../../common/constants/user-role';
 import { Gender } from '../../../common/constants/gender';
@@ -45,4 +45,12 @@ export class CreateUserDto {
   @IsOptional()
   @IsNumber()
   rating?: number;
+
+  @IsOptional()
+  @IsString()
+  servicePrice?: string;
+
+  @IsOptional()
+  @IsString()
+  device?: string;
 }

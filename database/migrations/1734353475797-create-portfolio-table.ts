@@ -32,6 +32,16 @@ export class CreatePortfolioTable1734353475797 implements MigrationInterface {
             isNullable: true,
           },
           {
+            name: 'shoot_date',
+            type: 'date',
+            isNullable: true,
+          },
+          {
+            name: 'location',
+            type: 'text',
+            isNullable: true,
+          },
+          {
             name: 'created_at',
             type: 'timestamptz',
             default: 'now()',

@@ -3,10 +3,13 @@ import {
   QueryRunner,
   Table,
   TableForeignKey,
+  TableColumn,
+  TableIndex,
 } from 'typeorm';
 
 export class CreateResponsesTable1734353598797 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // Создание таблицы
     await queryRunner.createTable(
       new Table({
         name: 'responses',
@@ -31,12 +34,12 @@ export class CreateResponsesTable1734353598797 implements MigrationInterface {
           {
             name: 'created_at',
             type: 'timestamptz',
-            default: 'now()',
+            default: 'CURRENT_TIMESTAMP',
           },
           {
             name: 'updated_at',
             type: 'timestamptz',
-            default: 'now()',
+            default: 'CURRENT_TIMESTAMP',
           },
           {
             name: 'deleted_at',
@@ -56,6 +59,7 @@ export class CreateResponsesTable1734353598797 implements MigrationInterface {
       true,
     );
 
+    // Добавление внешних ключей
     await queryRunner.createForeignKey(
       'responses',
       new TableForeignKey({
