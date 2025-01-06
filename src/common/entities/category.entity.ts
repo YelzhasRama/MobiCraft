@@ -24,6 +24,13 @@ export class CategoryEntity {
   })
   title: string;
 
+  @Column({
+    name: 'icon_code',
+    type: 'text',
+    nullable: true,
+  })
+  iconCode: string;
+
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamptz',

@@ -8,6 +8,7 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import { UserRole } from '../constants/user-role';
 import { Gender } from '../constants/gender';
@@ -16,6 +17,7 @@ import { PortfolioEntity } from './portfolio.entity';
 import { OrderEntity } from './order.entity';
 import { ResponseEntity } from './response.entity';
 import { ReviewEntity } from './review.entity';
+import { UserProfileImageEntity } from './user-profile-image.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -53,6 +55,13 @@ export class UserEntity {
   name: string;
 
   @Column({
+    name: 'full_name',
+    type: 'text',
+    nullable: true,
+  })
+  fullName: string;
+
+  @Column({
     name: 'gender',
     type: 'enum',
     enum: Gender,
@@ -66,6 +75,13 @@ export class UserEntity {
     nullable: true,
   })
   location: string;
+
+  @Column({
+    name: 'where_am_i',
+    type: 'text',
+    nullable: true,
+  })
+  whereAmI: string;
 
   @Column({
     name: 'phone',
@@ -102,6 +118,13 @@ export class UserEntity {
     nullable: true,
   })
   servicePrice: string;
+
+  @Column({
+    name: 'price_unit',
+    type: 'text',
+    nullable: true,
+  })
+  priceUnit: string;
 
   @Column({
     name: 'device',
@@ -169,4 +192,9 @@ export class UserEntity {
 
   @OneToMany(() => ReviewEntity, (review) => review.reviewer)
   reviewsGiven: ReviewEntity[]; // Пользователь, которому оставлен отзыв
+
+  @OneToOne(() => UserProfileImageEntity, (profileImage) => profileImage.user, {
+    cascade: true,
+  })
+  profileImage?: UserProfileImageEntity;
 }

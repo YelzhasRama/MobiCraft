@@ -1,27 +1,35 @@
-import { IsString, IsOptional, IsNumber, IsDate } from 'class-validator';
+import { IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateOrderDto {
   @IsString()
+  @IsOptional()
   title: string;
 
   @IsString()
+  @IsOptional()
   description: string;
 
-  @IsDate()
+  @IsString()
+  @IsOptional()
   shootingDate: string;
 
   @IsNumber()
+  @IsOptional()
   totalBudget: number; // Убедитесь, что это поле соответствует `totalBudget` в сущности
 
   @IsString()
+  @IsOptional()
   city: string; // Изменено на 'city', как в сущности
 
   @IsString()
+  @IsOptional()
   chronometry: string; // Изменено на 'chronometry', как в сущности
 
   @IsString()
-  clientName: string; // Соответствует полю 'client_name' в сущности
+  @IsOptional()
+  clientName: string; // This corresponds to the 'client_name' field in the entity
 
+  @IsOptional()
   clientId: string; // Идентификатор клиента, связанный с `UserEntity`
 
   @IsOptional()

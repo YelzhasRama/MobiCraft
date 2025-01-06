@@ -13,7 +13,7 @@ import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
 
-@Controller('categories')
+@Controller('category')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
@@ -24,7 +24,7 @@ export class CategoriesController {
   }
 
   @UseGuards(UserAccessJwtGuard)
-  @Get()
+  @Get('/list')
   findAll() {
     return this.categoriesService.findAll();
   }

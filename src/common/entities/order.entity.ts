@@ -26,36 +26,42 @@ export class OrderEntity {
   @Column({
     name: 'title',
     type: 'text',
+    nullable: true,
   })
   title: string;
 
   @Column({
     name: 'description',
     type: 'text',
+    nullable: true,
   })
   description: string;
 
   @Column({
     name: 'shooting_date',
     type: 'date',
+    nullable: true,
   })
   shootingDate: string;
 
   @Column({
     name: 'city',
     type: 'text',
+    nullable: true,
   })
   city: string;
 
   @Column({
     name: 'chronometry',
     type: 'text',
+    nullable: true,
   })
   chronometry: string;
 
   @Column({
     name: 'client_name',
     type: 'text',
+    nullable: true,
   })
   clientName: string;
 
@@ -63,6 +69,7 @@ export class OrderEntity {
     name: 'views_count',
     type: 'integer',
     default: 0,
+    nullable: true,
   })
   viewsCount: number;
 
@@ -71,6 +78,7 @@ export class OrderEntity {
     type: 'decimal',
     precision: 10,
     scale: 2,
+    nullable: true,
   })
   totalBudget: number;
 

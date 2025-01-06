@@ -8,15 +8,14 @@ import {
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import { getAuthConfig } from '../../../common/constants/auth.config';
-import { RegisterDto } from '../dto/register.dto';
 import { AuthTokens } from '../models/auth-tokens';
 import { UsersRepository } from '../../users/repository/users.repository';
 import * as bcrypt from 'bcrypt';
-import { UserRole } from '../../../common/constants/user-role';
 import { JwtService } from '@nestjs/jwt';
 import { AuthTokenType } from '../../../common/constants/auth-token-type';
 import { AuthRepository } from '../repository/auth.repository';
 import { LoginDto } from '../dto/login.dto';
+import { RegisterBody } from '../bodies/register.body';
 
 dayjs.extend(utc);
 
@@ -30,7 +29,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(payload: RegisterDto): Promise<AuthTokens> {
+  async register(payload: RegisterBody): Promise<AuthTokens> {
     const { email, password: rawPassword } = payload;
 
     const existingUser = await this.userRepository.getOneByEmail(email);
@@ -43,9 +42,8 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
     const newUser = await this.userRepository.createUser({
-      email,
+      ...payload,
       password: hashedPassword,
-      role: UserRole.CLIENT,
     });
 
     const { access, refresh } = await this.generateTokens({

@@ -24,8 +24,6 @@ export class UserAccessJwtStrategy extends PassportStrategy(
   validate(request: Request): { userId: number } | boolean {
     const token = request.headers['authorization'].replace('Bearer', '').trim();
 
-    console.log(token + ' ------');
-
     if (
       !token ||
       !this.jwtService.verify(token, {

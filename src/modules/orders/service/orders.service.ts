@@ -3,6 +3,7 @@ import { OrdersRepository } from '../repository/orders.repository';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { UpdateOrderDto } from '../dto/update-order.dto';
 import { OrderEntity } from '../../../common/entities/order.entity';
+import { GetAllOrdersQuery } from '../query/get-all-orders.query';
 
 @Injectable()
 export class OrdersService {
@@ -14,8 +15,8 @@ export class OrdersService {
   }
 
   // Получение всех заказов
-  async findAll(): Promise<OrderEntity[]> {
-    return this.ordersRepository.findWithRelations();
+  async findAll(query: GetAllOrdersQuery): Promise<[any[], number]> {
+    return this.ordersRepository.getAll(query);
   }
 
   // Получение заказа по ID

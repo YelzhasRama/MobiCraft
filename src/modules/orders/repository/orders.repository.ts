@@ -3,11 +3,20 @@ import { DataSource, Repository } from 'typeorm';
 import { OrderEntity } from '../../../common/entities/order.entity';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { UpdateOrderDto } from '../dto/update-order.dto';
+import { GetAllOrdersQuery } from '../query/get-all-orders.query';
 
 @Injectable()
 export class OrdersRepository extends Repository<OrderEntity> {
   constructor(private readonly dataSource: DataSource) {
     super(OrderEntity, dataSource.createEntityManager());
+  }
+
+  getAll({ perPage, page }: GetAllOrdersQuery) {
+    const queryBuilder = this.createQueryBuilder()
+      .skip(perPage * (page - 1))
+      .take(perPage);
+
+    return queryBuilder.getManyAndCount();
   }
 
   async createOrder(createOrderDto: CreateOrderDto) {
