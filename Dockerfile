@@ -22,5 +22,4 @@ RUN npm run build
 # Указываем порт для приложения
 EXPOSE 3000
 
-# Запуск приложения
 CMD ["npm", "run", "start"]
