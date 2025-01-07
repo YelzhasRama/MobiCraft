@@ -22,8 +22,7 @@ export class CategoriesController {
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
-
-  @UseGuards(UserAccessJwtGuard)
+  
   @Get('/list')
   findAll() {
     return this.categoriesService.findAll();
