@@ -18,7 +18,7 @@ import { FastifyRequest } from 'fastify';
 import { UserProfileImageService } from '../service/user-profile-image.service';
 import { AuthenticatedUser } from '../../../common/decorators/authenticated-user.decorator';
 
-@Controller('users')
+@Controller('user')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -26,33 +26,9 @@ export class UsersController {
   ) {}
 
   @UseGuards(UserAccessJwtGuard)
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
-  @UseGuards(UserAccessJwtGuard)
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  @UseGuards(UserAccessJwtGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @UseGuards(UserAccessJwtGuard)
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
-
-  @UseGuards(UserAccessJwtGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Get('me')
+  getMe(@AuthenticatedUser() user: AuthenticatedUserObject) {
+    return this.usersService.findOne(user.userId);
   }
 
   @UseGuards(UserAccessJwtGuard)
