@@ -7,6 +7,7 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
+  Param,
 } from '@nestjs/common';
 import { UsersService } from '../service/users.service';
 import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
@@ -31,9 +32,9 @@ export class UsersController {
 
   @UseGuards(UserAccessJwtGuard)
   @UseInterceptors(StaticObjectPathExpanderInterceptor)
-  @Get('me')
-  getMe(@AuthenticatedUser() user: AuthenticatedUserObject) {
-    return this.usersService.findOne(user.userId);
+  @Get(':id/bio')
+  getMe(@Param('id') id: number) {
+    return this.usersService.findOne(id);
   }
 
   @UseGuards(UserAccessJwtGuard)

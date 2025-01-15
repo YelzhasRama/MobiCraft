@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getDatabaseConfig } from './configs/database.config';
 import { ConfigModule } from '@nestjs/config';
 import { ResponsesModule } from './modules/responses/responses.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ResponsesModule } from './modules/responses/responses.module';
     StaticObjectsModule,
     UsersModule,
     ResponsesModule,
+    FavoritesModule,
   ],
 })
 export class AppModule {}

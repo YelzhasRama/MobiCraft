@@ -14,6 +14,7 @@ import {
 import { UserEntity } from './user.entity';
 import { CategoryEntity } from './category.entity';
 import { ResponseEntity } from './response.entity';
+import { FavoriteEntity } from "./favorite.entity";
 
 @Entity('orders')
 export class OrderEntity {
@@ -122,4 +123,7 @@ export class OrderEntity {
     cascade: true,
   })
   responses: ResponseEntity[];
+
+  @OneToMany(() => FavoriteEntity, (favorite) => favorite.order)
+  favorites?: FavoriteEntity[];
 }

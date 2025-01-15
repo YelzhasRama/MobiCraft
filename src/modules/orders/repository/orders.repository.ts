@@ -87,7 +87,7 @@ export class OrdersRepository {
   async findOrderById(id: number): Promise<OrderEntity | null> {
     return this.ordersRepository.findOne({
       where: { id },
-      relations: ['client', 'category', 'responses'],
+      relations: ['client', 'categories', 'responses'],
     });
   }
 

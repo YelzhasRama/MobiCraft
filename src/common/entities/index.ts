@@ -9,7 +9,8 @@ import { UserProfileImageEntity } from './user-profile-image.entity';
 import { StaticObjectEntity } from './static-object.entity';
 import { EmailVerificationCodeEntity } from './email-verification-code.entity';
 import { AccessoryEntity } from './accessory.entity';
-import { UserVideosEntity } from "./user-videos.entity";
+import { UserVideosEntity } from './user-videos.entity';
+import { FavoriteEntity } from './favorite.entity';
 
 export const entities = [
   CategoryEntity,
@@ -24,4 +25,5 @@ export const entities = [
   EmailVerificationCodeEntity,
   AccessoryEntity,
   UserVideosEntity,
+  FavoriteEntity,
 ];
