@@ -5,6 +5,7 @@ import { StaticObjectsService } from './service/static-objects.service';
 import { StaticObjectsRepository } from './repository/static-objects.repository';
 import { NestMinioModule } from 'nestjs-minio';
 import { getS3Config } from '../../configs/s3.config';
+import { StaticObjectController } from './controller/static-object.controller';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { getS3Config } from '../../configs/s3.config';
       },
     }),
   ],
+  controllers: [StaticObjectController],
   providers: [StaticObjectsService, StaticObjectsRepository],
   exports: [StaticObjectsRepository, StaticObjectsService],
 })

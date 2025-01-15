@@ -6,6 +6,8 @@ import { v4 as uuid } from 'uuid';
 import { getS3Config } from '../../../configs/s3.config';
 import { StaticObjectsRepository } from '../repository/static-objects.repository';
 import { StaticObjectEntity } from '../../../common/entities/static-object.entity';
+import { S3 } from 'aws-sdk';
+import * as process from 'node:process';
 
 const config = getS3Config().staticObject;
 
@@ -86,5 +88,30 @@ export class StaticObjectsService {
 
   async deleteManyByIds(ids: number[]) {
     await Promise.all(ids.map((id) => this.deleteOneById(id)));
+  }
+
+  async getPreSignedURL(bucketName: string, key: string, contentType: string) {
+    const region = process.env.S3_REGION;
+    const accessKey = process.env.S3_ACCESS_KEY;
+    const secretKey = process.env.S3_SECRET_KEY;
+
+    try {
+      const s3 = new S3({
+        region: region,
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+      });
+
+      const params = {
+        Bucket: bucketName,
+        Key: key,
+        ContentType: contentType,
+        Expires: 1800,
+      };
+
+      return await s3.getSignedUrlPromise('putObject', params);
+    } catch (error) {
+      throw error;
+    }
   }
 }
