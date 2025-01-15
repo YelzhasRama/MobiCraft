@@ -3,32 +3,30 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AppEnvironment, getAppConfig } from './configs/app.config';
-import fastifyMultipart from '@fastify/multipart';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as express from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-  );
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const logger = new Logger();
 
-  // @ts-expect-error third-party library types mismatch
-  await app.register(fastifyMultipart, {
-    limits: {
-      fieldNameSize: 100,
-      fieldSize: 100,
-      fields: 10,
-      fileSize: 10 * 1024 * 1024,
-      files: 10,
-      headerPairs: 2000,
-      parts: 1000,
-    },
-  });
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+  // // @ts-expect-error third-party library types mismatch
+  // await app.register(fastifyMultipart, {
+  //   attachFieldsToBody: true,
+  //   limits: {
+  //     fieldNameSize: 100,
+  //     fieldSize: 100,
+  //     fields: 10,
+  //     fileSize: 10 * 1024 * 1024,
+  //     files: 10,
+  //     headerPairs: 2000,
+  //     parts: 1000,
+  //   },
+  // });
 
   const appConfig = getAppConfig();
 
@@ -40,7 +38,6 @@ async function bootstrap() {
       forbidUnknownValues: false,
     }),
   );
-  app.useGlobalInterceptors();
   app.enableShutdownHooks();
 
   if (appConfig.environment !== AppEnvironment.Production) {

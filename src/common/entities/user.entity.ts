@@ -18,6 +18,8 @@ import { OrderEntity } from './order.entity';
 import { ResponseEntity } from './response.entity';
 import { ReviewEntity } from './review.entity';
 import { UserProfileImageEntity } from './user-profile-image.entity';
+import { AccessoryEntity } from './accessory.entity';
+import { UserVideosEntity } from './user-videos.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -133,6 +135,13 @@ export class UserEntity {
   })
   device: string;
 
+  @Column({
+    name: 'email_verified_at',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  emailVerifiedAt: string | null;
+
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamptz',
@@ -197,4 +206,12 @@ export class UserEntity {
     cascade: true,
   })
   profileImage?: UserProfileImageEntity;
+
+  @ManyToMany(() => AccessoryEntity, (accessory) => accessory.users)
+  accessories: AccessoryEntity[];
+
+  @OneToMany(() => UserVideosEntity, (userVideo) => userVideo.user, {
+    cascade: true,
+  })
+  videos: UserVideosEntity[];
 }

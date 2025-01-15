@@ -7,6 +7,9 @@ import { UserEntity } from './user.entity';
 import { UserRefreshTokenEntity } from './user-refresh-token.entity';
 import { UserProfileImageEntity } from './user-profile-image.entity';
 import { StaticObjectEntity } from './static-object.entity';
+import { EmailVerificationCodeEntity } from './email-verification-code.entity';
+import { AccessoryEntity } from './accessory.entity';
+import { UserVideosEntity } from "./user-videos.entity";
 
 export const entities = [
   CategoryEntity,
@@ -18,4 +21,7 @@ export const entities = [
   UserRefreshTokenEntity,
   UserProfileImageEntity,
   StaticObjectEntity,
+  EmailVerificationCodeEntity,
+  AccessoryEntity,
+  UserVideosEntity,
 ];

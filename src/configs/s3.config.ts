@@ -18,6 +18,7 @@ export const getS3Config = () => ({
     prefix: {
       userProfileImages:
         process.env.S3_PREFIX_USER_PROFILES ?? 'users/profile-images/',
+      userVideos: process.env.S3_PREFIX_USER_VIDEOS ?? 'users/videos/',
     },
   },
 });

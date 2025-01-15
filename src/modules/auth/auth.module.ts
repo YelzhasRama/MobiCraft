@@ -9,10 +9,16 @@ import { UserRefreshTokenEntity } from '../../common/entities/user-refresh-token
 import { UserAccessJwtStrategy } from './strategy/user-access-jwt.strategy';
 import { UserRefreshJwtStragety } from './strategy/user-refresh-jwt.stragety';
 import { PassportModule } from '@nestjs/passport';
+import { MailingService } from './service/mailing.service';
+import { EmailVerificationCodesRepository } from './repository/email-verification-codes.repository';
+import { EmailVerificationCodeEntity } from '../../common/entities/email-verification-code.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserRefreshTokenEntity]),
+    TypeOrmModule.forFeature([
+      UserRefreshTokenEntity,
+      EmailVerificationCodeEntity,
+    ]),
     UsersModule,
     PassportModule,
   ],
@@ -23,6 +29,9 @@ import { PassportModule } from '@nestjs/passport';
     JwtService,
     UserAccessJwtStrategy,
     UserRefreshJwtStragety,
+    MailingService,
+    EmailVerificationCodesRepository,
   ],
+  exports: [MailingService],
 })
 export class AuthModule {}

@@ -22,7 +22,7 @@ export class CategoriesController {
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
-  
+
   @Get('/list')
   findAll() {
     return this.categoriesService.findAll();

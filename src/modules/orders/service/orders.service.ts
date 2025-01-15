@@ -15,8 +15,8 @@ export class OrdersService {
   }
 
   // Получение всех заказов
-  async findAll(query: GetAllOrdersQuery): Promise<[any[], number]> {
-    return this.ordersRepository.getAll(query);
+  async findAll(query: GetAllOrdersQuery) {
+    return await this.ordersRepository.getAll(query);
   }
 
   // Получение заказа по ID

@@ -16,6 +16,9 @@ import { AuthTokenType } from '../../../common/constants/auth-token-type';
 import { AuthRepository } from '../repository/auth.repository';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterBody } from '../bodies/register.body';
+import { MailingService } from './mailing.service';
+import { EmailVerificationCodesRepository } from '../repository/email-verification-codes.repository';
+import { VerifyEmailDto } from '../dto/verify-email.dto';
 
 dayjs.extend(utc);
 
@@ -27,6 +30,8 @@ export class AuthService {
     private readonly userRefreshTokenRepository: AuthRepository,
     private readonly userRepository: UsersRepository,
     private readonly jwtService: JwtService,
+    private readonly mailingService: MailingService,
+    private readonly emailVerificationCodesRepository: EmailVerificationCodesRepository,
   ) {}
 
   async register(payload: RegisterBody): Promise<AuthTokens> {
@@ -191,5 +196,66 @@ export class AuthService {
           .toISOString(),
       },
     };
+  }
+
+  async generateAndSendEmailVerificationCode(userId: number): Promise<void> {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException(`User with ${userId} id does not exist`);
+    }
+
+    if (user.emailVerifiedAt) {
+      throw new ConflictException('Email already verified');
+    }
+
+    const verificationCode = this.generateCode();
+    const expiresAt = dayjs().add(1, 'day').utc().toISOString();
+
+    await this.mailingService.sendEmailVerificationMail(
+      user.email,
+      verificationCode,
+    );
+
+    await this.emailVerificationCodesRepository.upsertAndFetchOne({
+      userId,
+      code: verificationCode,
+      expiresAt,
+    });
+  }
+
+  private generateCode(): string {
+    return Math.floor(Math.random() * 8999 + 1000).toString();
+  }
+
+  async verifyEmail(payload: VerifyEmailDto): Promise<void> {
+    const { userId, code } = payload;
+
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException(`User with ${userId} id does not exist`);
+    } else if (user.emailVerifiedAt) {
+      throw new ConflictException('Email already verified');
+    }
+
+    const emailVerificationCode =
+      await this.emailVerificationCodesRepository.findByUserId(user.id);
+    if (!emailVerificationCode) {
+      throw new BadRequestException('Email verification code not found');
+    }
+
+    if (emailVerificationCode.code !== code) {
+      throw new BadRequestException('Invalid email verification code');
+    }
+
+    if (dayjs().isAfter(dayjs(emailVerificationCode.expiresAt))) {
+      throw new BadRequestException('Email verification code has expired');
+    }
+
+    if (emailVerificationCode.usedAt) {
+      throw new BadRequestException('Email verification code already used');
+    }
+
+    await this.emailVerificationCodesRepository.setAsUsedByUserId(user.id);
+    await this.userRepository.verifyUserById(user.id);
   }
 }

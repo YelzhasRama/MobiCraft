@@ -11,7 +11,7 @@ export class UsersRepository extends Repository<UserEntity> {
   }
 
   getOneByEmail(email: string) {
-    const user = this.findOne({ where: { email } });
+    const user = this.findOne({ where: { email }, relations: ['accessories'] });
     return user;
   }
 
@@ -27,7 +27,13 @@ export class UsersRepository extends Repository<UserEntity> {
   async findUserById(id: number): Promise<UserEntity | null> {
     return this.findOne({
       where: { id },
-      relations: ['categories', 'portfolios', 'orders'],
+      relations: [
+        'categories',
+        'portfolios',
+        'orders',
+        'profileImage.staticObject',
+        'videos.staticObject',
+      ],
     });
   }
 
@@ -48,5 +54,9 @@ export class UsersRepository extends Repository<UserEntity> {
     if (user) {
       await this.softRemove(user);
     }
+  }
+
+  async verifyUserById(id: number): Promise<void> {
+    await this.update({ id }, { emailVerifiedAt: 'now()' });
   }
 }

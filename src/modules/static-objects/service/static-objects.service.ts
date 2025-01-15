@@ -35,6 +35,23 @@ export class StaticObjectsService {
     return staticObject;
   }
 
+  async uploadSaveAndReturnOneVideo(
+    data: Readable,
+    { prefix, mimeType }: { prefix: string; mimeType: string } = {
+      prefix: '',
+      mimeType: '',
+    },
+  ): Promise<StaticObjectEntity> {
+    const fileExt = mimeType ? `.${mimeType.split('/')[1]}` : '';
+    const objectKey = `${prefix}${uuid()}${fileExt}`;
+
+    await this.minioClient.putObject(config.bucketName, objectKey, data);
+    const staticObject =
+      await this.staticObjectsRepository.insertAndFetchOne(objectKey);
+
+    return staticObject;
+  }
+
   async getObject(key: string) {
     return this.minioClient.getObject(config.bucketName, key);
   }

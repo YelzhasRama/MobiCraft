@@ -12,6 +12,8 @@ import { LoginBody } from '../bodies/login.body';
 import { UserRefreshJwtGuard } from '../guard/user-refresh-jwt.guard';
 import { AuthenticatedUser } from '../../../common/decorators/authenticated-user.decorator';
 import { AuthenticatedUserObject } from '../../../common/models/authenticated-user-object.model';
+import { VerifyEmailBody } from '../bodies/verify-email.body';
+import { UserAccessJwtGuard } from '../guard/user-access-jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -40,5 +42,25 @@ export class AuthController {
     const { refreshToken, userId } = user;
 
     return this.authService.refreshTokens(userId, refreshToken);
+  }
+
+  @UseGuards(UserAccessJwtGuard)
+  @Post('send-code')
+  generateAndSendEmailVerificationCode(
+    @AuthenticatedUser() user: AuthenticatedUserObject,
+  ) {
+    return this.authService.generateAndSendEmailVerificationCode(user.userId);
+  }
+
+  @UseGuards(UserAccessJwtGuard)
+  @Post('verify-email')
+  verifyEmail(
+    @AuthenticatedUser() user: AuthenticatedUserObject,
+    @Body() body: VerifyEmailBody,
+  ) {
+    return this.authService.verifyEmail({
+      userId: user.userId,
+      code: body.code,
+    });
   }
 }

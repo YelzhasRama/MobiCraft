@@ -40,7 +40,6 @@ export class UserProfileImagesRepository {
     id: number,
     partialEntity: {
       staticObject?: { id: number };
-      thumbnailStaticObject?: { id: number };
     },
   ): Promise<UserProfileImageEntity> {
     await this.userProfileImageRepository.update(id, partialEntity);

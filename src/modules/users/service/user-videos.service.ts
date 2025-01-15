@@ -4,31 +4,30 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { StaticObjectsService } from '../../static-objects/service/static-objects.service';
-import { UserProfileImagesRepository } from '../repository/user-profile-image.repository';
 import { getS3Config } from '../../../configs/s3.config';
+import { UserVideosRepository } from '../repository/user-videos.repository';
 
 const config = getS3Config().staticObject;
 
 @Injectable()
-export class UserProfileImageService {
+export class UserVideosService {
   constructor(
     private readonly staticObjectService: StaticObjectsService,
-    private readonly userProfileImageRepository: UserProfileImagesRepository,
+    private readonly userVideosRepository: UserVideosRepository,
   ) {}
 
   async uploadAndSaveOne(
-    imageFile: Express.Multer.File,
+    videoFile: Express.Multer.File,
     userId: number,
     { mimeType }: { mimeType?: string } = {},
   ) {
-    let imageBuffer = null;
+    let videoBuffer = null;
 
     try {
-      if (!imageFile || !imageFile.buffer) {
+      if (!videoFile || !videoFile.buffer) {
         throw new BadRequestException('Invalid file format');
       }
-      imageBuffer = imageFile.buffer;
-      console.log(mimeType);
+      videoBuffer = videoFile.buffer;
     } catch (err) {
       throw new BadRequestException(
         'File size limit reached or invalid file',
@@ -38,26 +37,25 @@ export class UserProfileImageService {
 
     try {
       const staticObject =
-        await this.staticObjectService.uploadSaveAndReturnOne(imageBuffer, {
-          prefix: config.prefix.userProfileImages,
-          mimeType,
-        });
+        await this.staticObjectService.uploadSaveAndReturnOneVideo(
+          videoBuffer,
+          {
+            prefix: config.prefix.userVideos,
+            mimeType,
+          },
+        );
 
-      const userProfileImage =
-        await this.userProfileImageRepository.getOneByUserId(userId);
+      const userVideo = await this.userVideosRepository.getOneByUserId(userId);
 
-      if (!userProfileImage) {
-        await this.userProfileImageRepository.insertAndFetchOne(
+      if (!userVideo) {
+        await this.userVideosRepository.insertAndFetchOne(
           userId,
           staticObject.id,
         );
       } else {
-        await this.userProfileImageRepository.updateAndFetchById(
-          userProfileImage.id,
-          {
-            staticObject: { id: staticObject.id },
-          },
-        );
+        await this.userVideosRepository.updateAndFetchById(userVideo.id, {
+          staticObject: { id: staticObject.id },
+        });
       }
 
       return this.getOneByUserId(userId);
@@ -69,12 +67,11 @@ export class UserProfileImageService {
   }
 
   async getOneByUserId(userId: number) {
-    const userProfileImage =
-      await this.userProfileImageRepository.getOneByUserId(userId);
-    if (!userProfileImage) {
+    const userVideo = await this.userVideosRepository.getOneByUserId(userId);
+    if (!userVideo) {
       return null;
     }
 
-    return userProfileImage;
+    return userVideo;
   }
 }

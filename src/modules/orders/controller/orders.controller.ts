@@ -25,11 +25,9 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto);
   }
 
-  @UseGuards(UserAccessJwtGuard)
   @Get('/mobi/order/list')
   async findAll(@Query() query: GetAllOrdersQuery) {
     const [orders, total] = await this.ordersService.findAll(query);
-
     return {
       orders,
       meta: {
