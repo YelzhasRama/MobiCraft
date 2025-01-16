@@ -14,6 +14,8 @@ import { CreateOrderDto } from '../dto/create-order.dto';
 import { UpdateOrderDto } from '../dto/update-order.dto';
 import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
 import { GetAllOrdersQuery } from '../query/get-all-orders.query';
+import { AuthenticatedUser } from '../../../common/decorators/authenticated-user.decorator';
+import { AuthenticatedUserObject } from '../../../common/models/authenticated-user-object.model';
 
 @Controller()
 export class OrdersController {
@@ -39,9 +41,15 @@ export class OrdersController {
   }
 
   @UseGuards(UserAccessJwtGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
+  @Get('/orders/:orderId/requests/list')
+  findOne(
+    @Param('orderId') orderId: number,
+    @AuthenticatedUser() user: AuthenticatedUserObject,
+  ) {
+    return this.ordersService.findAllRequestsByOrderAndClientId(
+      orderId,
+      user.userId,
+    );
   }
 
   @UseGuards(UserAccessJwtGuard)

@@ -12,14 +12,20 @@ import { ResponsesService } from '../service/responses.service';
 import { CreateResponseDto } from '../dto/create-responses.dto';
 import { UpdateResponseDto } from '../dto/update-responses.dto';
 import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
+import { AuthenticatedUser } from '../../../common/decorators/authenticated-user.decorator';
+import { AuthenticatedUserObject } from '../../../common/models/authenticated-user-object.model';
 
-@Controller('responses')
+@Controller('')
 export class ResponsesController {
   constructor(private readonly responsesService: ResponsesService) {}
 
   @UseGuards(UserAccessJwtGuard)
-  @Post()
-  create(@Body() createResponseDto: CreateResponseDto) {
+  @Post('request/create')
+  create(
+    @Body() createResponseDto: CreateResponseDto,
+    @AuthenticatedUser() user: AuthenticatedUserObject,
+  ) {
+    createResponseDto.mobilographId = user.userId;
     return this.responsesService.create(createResponseDto);
   }
 

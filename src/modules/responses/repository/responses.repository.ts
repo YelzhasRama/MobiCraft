@@ -1,28 +1,56 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
 import { ResponseEntity } from '../../../common/entities/response.entity';
+import { ResponseStatus } from '../../../common/constants/response-status';
+import { CreateResponseDto } from '../dto/create-responses.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class ResponsesRepository extends Repository<ResponseEntity> {
-  constructor(private readonly dataSource: DataSource) {
-    super(ResponseEntity, dataSource.createEntityManager());
-  }
+export class ResponsesRepository {
+  constructor(
+    @InjectRepository(ResponseEntity)
+    private readonly responseRepository: Repository<ResponseEntity>,
+  ) {}
 
-  async createResponse(createResponseDto: Partial<ResponseEntity>) {
-    const response = this.create(createResponseDto);
-    return this.save(response);
+  async createResponse(payload: CreateResponseDto) {
+    const response = this.responseRepository.create({
+      message: payload.message,
+      status: ResponseStatus.PENDING,
+      order: { id: payload.orderId }, // Передаем объект с ID для связи
+      mobilograph: payload.mobilographId ? { id: payload.mobilographId } : null, // Учитываем optional поле
+    });
+
+    return this.responseRepository.save(response);
   }
 
   async findWithRelations(): Promise<ResponseEntity[]> {
-    return this.find({
+    return this.responseRepository.find({
       relations: ['order', 'mobilograph'],
     });
   }
 
   async findResponseById(id: number): Promise<ResponseEntity | null> {
-    return this.findOne({
+    return this.responseRepository.findOne({
       where: { id },
       relations: ['order', 'mobilograph'],
+    });
+  }
+
+  async findRequestsByOrderId(orderId: number) {
+    return this.responseRepository.find({
+      where: {
+        order: { id: orderId },
+      },
+      relations: ['mobilograph'],
+    });
+  }
+
+  async findRequestByOrderIdAndUserId(orderId: number, userId: number) {
+    return this.responseRepository.findOne({
+      where: {
+        order: { id: orderId }, // Связь "order"
+        mobilograph: { id: userId }, // Связь "mobilograph"
+      },
     });
   }
 
@@ -32,13 +60,13 @@ export class ResponsesRepository extends Repository<ResponseEntity> {
       throw new Error(`Response with ID ${id} not found`);
     }
     Object.assign(response, updateResponseDto);
-    return this.save(response);
+    return this.responseRepository.save(response);
   }
 
   async removeResponse(id: number): Promise<void> {
     const response = await this.findResponseById(id);
     if (response) {
-      await this.softRemove(response);
+      await this.responseRepository.softRemove(response);
     }
   }
 }
