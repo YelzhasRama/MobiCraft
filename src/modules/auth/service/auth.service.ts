@@ -19,6 +19,8 @@ import { RegisterBody } from '../bodies/register.body';
 import { MailingService } from './mailing.service';
 import { EmailVerificationCodesRepository } from '../repository/email-verification-codes.repository';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
+import { UpdateProfileBody } from '../bodies/update-profile.body';
+import { UserRole } from '../../../common/constants/user-role';
 
 dayjs.extend(utc);
 
@@ -48,6 +50,7 @@ export class AuthService {
 
     const newUser = await this.userRepository.createUser({
       ...payload,
+      role: UserRole.CLIENT,
       password: hashedPassword,
     });
 
@@ -71,6 +74,17 @@ export class AuthService {
         expiresAt: refresh.expiresAt,
       },
     };
+  }
+
+  async updateProfile(userId: number, body: UpdateProfileBody) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
+    Object.assign(user, body);
+    return this.userRepository.save(user);
   }
 
   async login(payload: LoginDto): Promise<AuthTokens> {

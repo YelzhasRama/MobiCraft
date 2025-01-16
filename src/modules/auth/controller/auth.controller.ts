@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { AuthenticatedUser } from '../../../common/decorators/authenticated-user
 import { AuthenticatedUserObject } from '../../../common/models/authenticated-user-object.model';
 import { VerifyEmailBody } from '../bodies/verify-email.body';
 import { UserAccessJwtGuard } from '../guard/user-access-jwt.guard';
+import { UpdateProfileBody } from '../bodies/update-profile.body';
 
 @Controller('auth')
 export class AuthController {
@@ -22,6 +24,15 @@ export class AuthController {
   @Post('register')
   register(@Body() body: RegisterBody) {
     return this.authService.register(body);
+  }
+
+  @UseGuards(UserAccessJwtGuard)
+  @Patch('/profile')
+  async saveProfileOfUser(
+    @Body() body: UpdateProfileBody,
+    @AuthenticatedUser() user: AuthenticatedUserObject, // Получаем текущего пользователя
+  ) {
+    return this.authService.updateProfile(user.userId, body);
   }
 
   @Post('login')

@@ -20,7 +20,7 @@ import { ReviewEntity } from './review.entity';
 import { UserProfileImageEntity } from './user-profile-image.entity';
 import { AccessoryEntity } from './accessory.entity';
 import { UserVideosEntity } from './user-videos.entity';
-import { FavoriteEntity } from "./favorite.entity";
+import { FavoriteEntity } from './favorite.entity';
 
 @Entity('users')
 export class UserEntity {
