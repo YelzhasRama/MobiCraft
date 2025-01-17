@@ -27,13 +27,7 @@ export class UsersRepository extends Repository<UserEntity> {
   async findUserById(id: number): Promise<UserEntity | null> {
     return this.findOne({
       where: { id },
-      relations: [
-        'categories',
-        'portfolios',
-        'orders',
-        'profileImage.staticObject',
-        'videos.staticObject',
-      ],
+      relations: ['profileImage.staticObject'],
     });
   }
 

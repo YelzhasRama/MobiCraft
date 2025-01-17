@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import { RegisterBody } from '../bodies/register.body';
@@ -16,10 +18,22 @@ import { AuthenticatedUserObject } from '../../../common/models/authenticated-us
 import { VerifyEmailBody } from '../bodies/verify-email.body';
 import { UserAccessJwtGuard } from '../guard/user-access-jwt.guard';
 import { UpdateProfileBody } from '../bodies/update-profile.body';
+import { StaticObjectPathExpanderInterceptor } from '../../../common/interceptors/static-object-path-expander.interceptor';
+import { UsersService } from '../../users/service/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
+
+  @UseGuards(UserAccessJwtGuard)
+  @UseInterceptors(StaticObjectPathExpanderInterceptor)
+  @Get('me')
+  getMe(@AuthenticatedUser() user: AuthenticatedUserObject) {
+    return this.usersService.findOne(user.userId);
+  }
 
   @Post('register')
   register(@Body() body: RegisterBody) {
