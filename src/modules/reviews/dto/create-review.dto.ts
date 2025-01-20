@@ -11,9 +11,8 @@ export class CreateReviewDto {
   comment?: string;
 
   @IsNumber()
-  userId: number;
+  mobilographId: number;
 
-  @IsOptional()
   @IsNumber()
-  reviewerId?: number;
+  reviewerId: number;
 }

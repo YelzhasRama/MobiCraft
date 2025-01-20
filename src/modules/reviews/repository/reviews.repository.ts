@@ -11,20 +11,52 @@ export class ReviewsRepository extends Repository<ReviewEntity> {
   }
 
   async createReview(createReviewDto: CreateReviewDto): Promise<ReviewEntity> {
-    const review = this.create(createReviewDto);
+    const review = this.create({
+      rating: createReviewDto.rating,
+      comment: createReviewDto.comment,
+      user: { id: createReviewDto.mobilographId },
+      reviewer: { id: createReviewDto.reviewerId },
+    });
     return this.save(review);
   }
 
-  async findAllReviews(): Promise<ReviewEntity[]> {
-    return this.find({
-      relations: ['user', 'reviewer'],
-    });
+  async findAllReviews(id: number) {
+    const reviews = await this.createQueryBuilder('review')
+      .select([
+        'review.id',
+        'review.rating',
+        'review.comment',
+        'review.createdAt',
+      ])
+      .addSelect(['mobilograph.id', 'reviewer.id']) // Выбираем только id для user и reviewer
+      .leftJoin('review.user', 'mobilograph') // Используем алиас mobilograph
+      .leftJoin('review.reviewer', 'reviewer') // Используем алиас reviewer
+      .where('mobilograph.id = :id', { id }) // Указываем условие через алиас mobilograph
+      .getMany();
+
+    return reviews.map((review) => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt,
+      mobilographId: review.user?.id, // Извлекаем id mobilograph
+      reviewerId: review.reviewer?.id, // Извлекаем id reviewer
+    }));
   }
 
   async findReviewById(id: number): Promise<ReviewEntity | null> {
     return this.findOne({
       where: { id },
       relations: ['user', 'reviewer'],
+    });
+  }
+
+  async findExistingReview(mobilographId: number, reviewerId: number) {
+    return await this.findOne({
+      where: {
+        user: { id: mobilographId },
+        reviewer: { id: reviewerId },
+      },
     });
   }
 

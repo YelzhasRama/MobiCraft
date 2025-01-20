@@ -13,20 +13,20 @@ import { CreateReviewDto } from '../dto/create-review.dto';
 import { UpdateReviewDto } from '../dto/update-review.dto';
 import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
 
-@Controller('reviews')
+@Controller()
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @UseGuards(UserAccessJwtGuard)
-  @Post()
-  create(@Body() createReviewDto: CreateReviewDto) {
-    return this.reviewsService.create(createReviewDto);
+  @Post('review/create')
+  async create(@Body() createReviewDto: CreateReviewDto) {
+    return await this.reviewsService.create(createReviewDto);
   }
 
   @UseGuards(UserAccessJwtGuard)
-  @Get()
-  findAll() {
-    return this.reviewsService.findAll();
+  @Get('/user/:id/reviews')
+  async findAll(@Param('id') id: number) {
+    return await this.reviewsService.findAll(id);
   }
 
   @UseGuards(UserAccessJwtGuard)
