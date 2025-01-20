@@ -39,7 +39,7 @@ export class PortfolioEntity {
 
   @Column({
     name: 'shoot_date',
-    type: 'date',
+    type: 'text',
     nullable: true,
   })
   shootDate: string;
@@ -50,6 +50,20 @@ export class PortfolioEntity {
     nullable: true,
   })
   location: string;
+
+  @Column({
+    name: 'camera',
+    type: 'text',
+    nullable: true,
+  })
+  camera: string;
+
+  @Column({
+    name: 'url',
+    type: 'text',
+    nullable: true,
+  })
+  url: string;
 
   @CreateDateColumn({
     name: 'created_at',

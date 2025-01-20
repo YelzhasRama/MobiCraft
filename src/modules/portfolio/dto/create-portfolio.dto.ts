@@ -1,9 +1,16 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsDate } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsDate,
+} from 'class-validator';
 
 export class CreatePortfolioDto {
   @IsNotEmpty()
   @IsString()
-  title: string;
+  @IsOptional()
+  title?: string;
 
   @IsOptional()
   @IsString()
@@ -14,10 +21,19 @@ export class CreatePortfolioDto {
   userId: number;
 
   @IsOptional()
-  @IsDate()
+  @IsOptional()
   shootDate?: string;
 
   @IsOptional()
   @IsString()
+  @IsOptional()
   location?: string;
+
+  @IsOptional()
+  @IsString()
+  camera?: string;
+
+  @IsString()
+  @IsOptional()
+  url?: string;
 }
