@@ -4,6 +4,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserEntity } from '../../../common/entities/user.entity';
 import { CreateUserDevicesDto } from '../dto/create-user-devices.dto';
 import { AccessoryRepository } from '../repository/accessory.repository';
+import { UpdateLoginAndPasswordDto } from '../dto/update-login-and-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -20,8 +21,23 @@ export class UsersService {
     return this.usersRepository.findUserById(id);
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-    return this.usersRepository.updateUser(id, updateUserDto);
+  async updateEmailAndPassword(
+    id: number,
+    updateLoginAndPassword: UpdateLoginAndPasswordDto,
+  ) {
+    const user = await this.usersRepository.findUserById(id);
+    if (!user) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+
+    return await this.usersRepository.updateLoginAndPassword(
+      id,
+      updateLoginAndPassword,
+    );
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    return await this.usersRepository.updateUser(id, updateUserDto);
   }
 
   async remove(id: number): Promise<void> {

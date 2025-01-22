@@ -3,20 +3,17 @@ import {
   IsOptional,
   IsNumber,
   IsEnum,
-  IsEmail,
+  IsArray,
+  ArrayNotEmpty,
+  IsInt,
 } from 'class-validator';
 import { UserRole } from '../../../common/constants/user-role';
 import { Gender } from '../../../common/constants/gender';
 
 export class CreateUserDto {
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  password: string;
-
+  @IsOptional()
   @IsEnum(UserRole)
-  role: UserRole;
+  role?: UserRole;
 
   @IsOptional()
   @IsString()
@@ -53,4 +50,17 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   device?: string;
+
+  // Новые поля
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  accessories?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  categories?: number[];
 }

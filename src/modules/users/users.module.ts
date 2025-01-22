@@ -13,6 +13,7 @@ import { AccessoryRepository } from './repository/accessory.repository';
 import { UserVideosEntity } from '../../common/entities/user-videos.entity';
 import { UserVideosRepository } from './repository/user-videos.repository';
 import { UserVideosService } from './service/user-videos.service';
+import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UserVideosService } from './service/user-videos.service';
       UserVideosEntity,
     ]),
     StaticObjectsModule,
+    CategoriesModule,
   ],
   controllers: [UsersController],
   providers: [

@@ -8,6 +8,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Param,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from '../service/users.service';
 import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
@@ -20,8 +21,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
 import { StaticObjectPathExpanderInterceptor } from '../../../common/interceptors/static-object-path-expander.interceptor';
 import { UserVideosService } from '../service/user-videos.service';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { UpdateLoginAndPasswordDto } from '../dto/update-login-and-password.dto';
 
-@Controller('user')
+@Controller()
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -32,7 +35,7 @@ export class UsersController {
 
   @UseGuards(UserAccessJwtGuard)
   @UseInterceptors(StaticObjectPathExpanderInterceptor)
-  @Get(':id/bio')
+  @Get('user/:id/bio')
   getMe(@Param('id') id: number) {
     return this.usersService.findOne(id);
   }
@@ -44,7 +47,7 @@ export class UsersController {
       limits: { fileSize: 15 * 1024 * 1024 }, // Ограничение на размер файла 15 MB
     }),
   )
-  @Post('/upload-profile-image')
+  @Post('user/upload-profile-image')
   async uploadProfileImage(
     @AuthenticatedUser() user: AuthenticatedUserObject,
     @UploadedFile() file: Express.Multer.File, // Тип для загруженного файла
@@ -73,7 +76,7 @@ export class UsersController {
       limits: { fileSize: 50 * 1024 * 1024 }, // Ограничение на размер файла 50 MB
     }),
   )
-  @Post('/upload-video')
+  @Post('user/upload-video')
   async uploadVideo(
     @AuthenticatedUser() user: AuthenticatedUserObject,
     @UploadedFile() file: Express.Multer.File, // Тип для загруженного файла
@@ -98,7 +101,7 @@ export class UsersController {
   }
 
   @UseGuards(UserAccessJwtGuard)
-  @Post('/mobilograph-devices')
+  @Post('user/mobilograph-devices')
   async saveMobilographDevices(
     @AuthenticatedUser() user: AuthenticatedUserObject,
     @Body() dto: CreateUserDevicesDto,
@@ -106,9 +109,27 @@ export class UsersController {
     return await this.usersService.saveMobilographDevices(user.userId, dto);
   }
 
-  @Get('/accessories')
+  @Get('user/accessories')
   async getAllAccessories() {
     const accessories = await this.accessoryRepository.getAllAccessories();
     return accessories;
+  }
+
+  @UseGuards(UserAccessJwtGuard)
+  @Patch('user/:id/update')
+  updateLoginAndPassword(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateLoginAndPasswordDto,
+  ) {
+    return this.usersService.updateEmailAndPassword(+id, updateUserDto);
+  }
+
+  @UseGuards(UserAccessJwtGuard)
+  @Patch('profile/:id/update')
+  updateProfile(
+    @Param('id') id: string,
+    @Body() updateProfileDto: UpdateUserDto,
+  ) {
+    return this.usersService.update(+id, updateProfileDto);
   }
 }

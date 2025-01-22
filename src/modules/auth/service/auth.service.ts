@@ -20,7 +20,6 @@ import { MailingService } from './mailing.service';
 import { EmailVerificationCodesRepository } from '../repository/email-verification-codes.repository';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { UpdateProfileBody } from '../bodies/update-profile.body';
-import { UserRole } from '../../../common/constants/user-role';
 
 dayjs.extend(utc);
 
@@ -50,7 +49,6 @@ export class AuthService {
 
     const newUser = await this.userRepository.createUser({
       ...payload,
-      role: UserRole.CLIENT,
       password: hashedPassword,
     });
 

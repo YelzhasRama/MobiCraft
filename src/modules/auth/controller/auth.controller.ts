@@ -17,9 +17,9 @@ import { AuthenticatedUser } from '../../../common/decorators/authenticated-user
 import { AuthenticatedUserObject } from '../../../common/models/authenticated-user-object.model';
 import { VerifyEmailBody } from '../bodies/verify-email.body';
 import { UserAccessJwtGuard } from '../guard/user-access-jwt.guard';
-import { UpdateProfileBody } from '../bodies/update-profile.body';
 import { StaticObjectPathExpanderInterceptor } from '../../../common/interceptors/static-object-path-expander.interceptor';
 import { UsersService } from '../../users/service/users.service';
+import { CreateUserDto } from '../../users/dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -43,10 +43,10 @@ export class AuthController {
   @UseGuards(UserAccessJwtGuard)
   @Patch('/profile')
   async saveProfileOfUser(
-    @Body() body: UpdateProfileBody,
+    @Body() body: CreateUserDto,
     @AuthenticatedUser() user: AuthenticatedUserObject, // Получаем текущего пользователя
   ) {
-    return this.authService.updateProfile(user.userId, body);
+    return this.usersService.update(user.userId, body);
   }
 
   @Post('login')

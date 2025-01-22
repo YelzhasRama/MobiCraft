@@ -20,7 +20,8 @@ export class UpdateProfileBody {
   })
   @IsEnum(UserRole)
   @IsNotEmpty()
-  role: UserRole;
+  @IsOptional()
+  role: UserRole | null;
 
   @ApiProperty({
     description: 'User full name',

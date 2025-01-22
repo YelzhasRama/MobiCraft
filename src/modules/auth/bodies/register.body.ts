@@ -3,12 +3,13 @@ import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsEnum,
-  IsNotEmpty, IsOptional,
+  IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MinLength,
-  NotContains
-} from "class-validator";
+  NotContains,
+} from 'class-validator';
 import { UserRole } from '../../../common/constants/user-role';
 
 export class RegisterBody {
@@ -34,12 +35,11 @@ export class RegisterBody {
 
   @ApiProperty({
     description: 'User role',
-    example: UserRole.CLIENT,
     enum: UserRole,
   })
   @IsEnum(UserRole)
   @IsOptional()
-  role: UserRole;
+  role?: UserRole | null;
 
   @ApiProperty({ description: 'User name', example: 'John' })
   @IsString()

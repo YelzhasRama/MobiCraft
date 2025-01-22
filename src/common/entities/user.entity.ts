@@ -47,6 +47,7 @@ export class UserEntity {
     name: 'role',
     type: 'enum',
     enum: UserRole,
+    nullable: true,
   })
   role: UserRole;
 

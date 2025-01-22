@@ -1,12 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { UserEntity } from '../../../common/entities/user.entity';
-import { UpdateUserDto } from '../dto/update-user.dto';
 import { RegisterBody } from '../../auth/bodies/register.body';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { CategoriesRepository } from '../../categories/repository/categories.repository';
+import { AccessoryRepository } from './accessory.repository';
+import { UpdateLoginAndPasswordDto } from '../dto/update-login-and-password.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersRepository extends Repository<UserEntity> {
-  constructor(private readonly dataSource: DataSource) {
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly caregoriesRepository: CategoriesRepository,
+    private readonly accessoriesRepository: AccessoryRepository,
+  ) {
     super(UserEntity, dataSource.createEntityManager());
   }
 
@@ -31,16 +39,59 @@ export class UsersRepository extends Repository<UserEntity> {
     });
   }
 
-  async updateUser(
+  async updateLoginAndPassword(
     id: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserEntity> {
-    const user = await this.findUserById(id);
+    updateLoginAndPasswordDto: UpdateLoginAndPasswordDto,
+  ): Promise<void> {
+    const { email, password } = updateLoginAndPasswordDto;
+
+    const updateData: Partial<UserEntity> = {};
+
+    if (email) {
+      updateData.email = email;
+    }
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
+
+    await this.createQueryBuilder()
+      .update(UserEntity)
+      .set(updateData)
+      .where('id = :id', { id })
+      .execute();
+  }
+
+  async updateUser(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.findOne({
+      where: { id },
+      relations: ['accessories', 'categories'],
+    });
+
     if (!user) {
       throw new Error(`User with ID ${id} not found`);
     }
+
+    // Обновление простых полей
     Object.assign(user, updateUserDto);
-    return this.save(user);
+
+    // Обновление связей
+    if (updateUserDto.accessories) {
+      const accessories = await this.accessoriesRepository.findByIds(
+        updateUserDto.accessories,
+      );
+      user.accessories = accessories;
+    }
+
+    if (updateUserDto.categories) {
+      const categories = await this.caregoriesRepository.findByIds(
+        updateUserDto.categories,
+      );
+      user.categories = categories;
+    }
+
+    return await this.save(user);
   }
 
   async removeUser(id: number): Promise<void> {
