@@ -11,6 +11,7 @@ import { EmailVerificationCodeEntity } from './email-verification-code.entity';
 import { AccessoryEntity } from './accessory.entity';
 import { UserVideosEntity } from './user-videos.entity';
 import { FavoriteEntity } from './favorite.entity';
+import { DeviceEntity } from './device.entity';
 
 export const entities = [
   CategoryEntity,
@@ -26,4 +27,5 @@ export const entities = [
   AccessoryEntity,
   UserVideosEntity,
   FavoriteEntity,
+  DeviceEntity,
 ];

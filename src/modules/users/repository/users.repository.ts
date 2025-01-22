@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { DataSource, Repository } from 'typeorm';
 import { UserEntity } from '../../../common/entities/user.entity';
 import { RegisterBody } from '../../auth/bodies/register.body';
@@ -70,7 +70,7 @@ export class UsersRepository extends Repository<UserEntity> {
     });
 
     if (!user) {
-      throw new Error(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     // Обновление простых полей

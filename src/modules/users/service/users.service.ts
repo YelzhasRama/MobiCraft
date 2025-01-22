@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsersRepository } from '../repository/users.repository';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserEntity } from '../../../common/entities/user.entity';
@@ -27,7 +27,7 @@ export class UsersService {
   ) {
     const user = await this.usersRepository.findUserById(id);
     if (!user) {
-      throw new Error(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     return await this.usersRepository.updateLoginAndPassword(
@@ -50,7 +50,7 @@ export class UsersService {
   ): Promise<UserEntity> {
     const user = await this.usersRepository.findUserById(userId);
     if (!user) {
-      throw new Error(`User with ID ${userId} not found`);
+      throw new NotFoundException(`User with ID ${userId} is not your id`);
     }
 
     if (createMobilographDeviceDto.device) {

@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   Param,
   Patch,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from '../service/users.service';
 import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
@@ -23,6 +24,7 @@ import { StaticObjectPathExpanderInterceptor } from '../../../common/interceptor
 import { UserVideosService } from '../service/user-videos.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdateLoginAndPasswordDto } from '../dto/update-login-and-password.dto';
+import { DeviceRepository } from '../repository/device.repository';
 
 @Controller()
 export class UsersController {
@@ -31,6 +33,7 @@ export class UsersController {
     private readonly userProfileImagesService: UserProfileImageService,
     private readonly accessoryRepository: AccessoryRepository,
     private readonly userVideosService: UserVideosService,
+    private readonly deviceRepository: DeviceRepository,
   ) {}
 
   @UseGuards(UserAccessJwtGuard)
@@ -109,10 +112,16 @@ export class UsersController {
     return await this.usersService.saveMobilographDevices(user.userId, dto);
   }
 
-  @Get('user/accessories')
+  @Get('accessory/list')
   async getAllAccessories() {
     const accessories = await this.accessoryRepository.getAllAccessories();
     return accessories;
+  }
+
+  @Get('device/list')
+  async getAllDevice() {
+    const devices = await this.deviceRepository.getAllDevices();
+    return devices;
   }
 
   @UseGuards(UserAccessJwtGuard)
@@ -120,7 +129,11 @@ export class UsersController {
   updateLoginAndPassword(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateLoginAndPasswordDto,
+    @AuthenticatedUser() user: AuthenticatedUserObject,
   ) {
+    if (user.userId === +id) {
+      throw new NotFoundException('User id is not yours');
+    }
     return this.usersService.updateEmailAndPassword(+id, updateUserDto);
   }
 

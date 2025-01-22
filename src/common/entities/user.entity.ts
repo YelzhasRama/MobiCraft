@@ -21,6 +21,7 @@ import { UserProfileImageEntity } from './user-profile-image.entity';
 import { AccessoryEntity } from './accessory.entity';
 import { UserVideosEntity } from './user-videos.entity';
 import { FavoriteEntity } from './favorite.entity';
+import { DeviceEntity } from './device.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -219,4 +220,7 @@ export class UserEntity {
 
   @OneToMany(() => FavoriteEntity, (favorite) => favorite.user)
   favorites?: FavoriteEntity[];
+
+  @ManyToMany(() => DeviceEntity, (device) => device.users)
+  devices: DeviceEntity[];
 }

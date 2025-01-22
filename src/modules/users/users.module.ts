@@ -14,6 +14,8 @@ import { UserVideosEntity } from '../../common/entities/user-videos.entity';
 import { UserVideosRepository } from './repository/user-videos.repository';
 import { UserVideosService } from './service/user-videos.service';
 import { CategoriesModule } from '../categories/categories.module';
+import { DeviceEntity } from '../../common/entities/device.entity';
+import { DeviceRepository } from './repository/device.repository';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { CategoriesModule } from '../categories/categories.module';
       UserProfileImageEntity,
       AccessoryEntity,
       UserVideosEntity,
+      DeviceEntity,
     ]),
     StaticObjectsModule,
     CategoriesModule,
@@ -35,6 +38,7 @@ import { CategoriesModule } from '../categories/categories.module';
     AccessoryRepository,
     UserVideosRepository,
     UserVideosService,
+    DeviceRepository,
   ],
   exports: [
     UsersService,
@@ -43,6 +47,7 @@ import { CategoriesModule } from '../categories/categories.module';
     UserProfileImageService,
     UserVideosRepository,
     UserVideosService,
+    DeviceRepository,
   ],
 })
 export class UsersModule {}
