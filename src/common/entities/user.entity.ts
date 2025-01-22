@@ -139,6 +139,13 @@ export class UserEntity {
   device: string;
 
   @Column({
+    name: 'avatar_url',
+    type: 'text',
+    nullable: true,
+  })
+  avatarUrl: string;
+
+  @Column({
     name: 'email_verified_at',
     type: 'timestamptz',
     nullable: true,

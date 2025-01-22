@@ -20,6 +20,10 @@ export class UpdateUserDto {
   name?: string;
 
   @IsOptional()
+  @IsString()
+  fullName?: string;
+
+  @IsOptional()
   @IsEnum(Gender)
   gender?: Gender;
 
@@ -49,7 +53,21 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  device?: string;
+  priceUnit?: string;
+
+  @IsOptional()
+  @IsString()
+  avatarUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  whereAmI?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  devices?: number[];
 
   // Новые поля
   @IsOptional()

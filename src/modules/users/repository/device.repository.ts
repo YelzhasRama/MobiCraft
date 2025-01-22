@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeviceEntity } from '../../../common/entities/device.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class DeviceRepository {
@@ -12,5 +12,9 @@ export class DeviceRepository {
 
   async getAllDevices() {
     return this.deviceRepository.find();
+  }
+
+  async findByIds(ids: number[]) {
+    return this.deviceRepository.find({ where: { id: In(ids) } });
   }
 }

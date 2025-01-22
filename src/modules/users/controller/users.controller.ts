@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   Param,
   Patch,
-  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from '../service/users.service';
 import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
@@ -125,24 +124,20 @@ export class UsersController {
   }
 
   @UseGuards(UserAccessJwtGuard)
-  @Patch('user/:id/update')
+  @Patch('user/update')
   updateLoginAndPassword(
-    @Param('id') id: string,
     @Body() updateUserDto: UpdateLoginAndPasswordDto,
     @AuthenticatedUser() user: AuthenticatedUserObject,
   ) {
-    if (user.userId === +id) {
-      throw new NotFoundException('User id is not yours');
-    }
-    return this.usersService.updateEmailAndPassword(+id, updateUserDto);
+    return this.usersService.updateEmailAndPassword(user.userId, updateUserDto);
   }
 
   @UseGuards(UserAccessJwtGuard)
-  @Patch('profile/:id/update')
+  @Patch('profile/update')
   updateProfile(
-    @Param('id') id: string,
+    @AuthenticatedUser() user: AuthenticatedUserObject,
     @Body() updateProfileDto: UpdateUserDto,
   ) {
-    return this.usersService.update(+id, updateProfileDto);
+    return this.usersService.update(user.userId, updateProfileDto);
   }
 }

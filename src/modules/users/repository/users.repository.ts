@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { UserEntity } from '../../../common/entities/user.entity';
 import { RegisterBody } from '../../auth/bodies/register.body';
@@ -7,6 +7,7 @@ import { CategoriesRepository } from '../../categories/repository/categories.rep
 import { AccessoryRepository } from './accessory.repository';
 import { UpdateLoginAndPasswordDto } from '../dto/update-login-and-password.dto';
 import * as bcrypt from 'bcrypt';
+import { DeviceRepository } from './device.repository';
 
 @Injectable()
 export class UsersRepository extends Repository<UserEntity> {
@@ -14,6 +15,7 @@ export class UsersRepository extends Repository<UserEntity> {
     private readonly dataSource: DataSource,
     private readonly caregoriesRepository: CategoriesRepository,
     private readonly accessoriesRepository: AccessoryRepository,
+    private readonly deviceRepository: DeviceRepository,
   ) {
     super(UserEntity, dataSource.createEntityManager());
   }
@@ -66,7 +68,7 @@ export class UsersRepository extends Repository<UserEntity> {
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.findOne({
       where: { id },
-      relations: ['accessories', 'categories'],
+      relations: ['accessories', 'categories', 'devices'],
     });
 
     if (!user) {
@@ -82,6 +84,13 @@ export class UsersRepository extends Repository<UserEntity> {
         updateUserDto.accessories,
       );
       user.accessories = accessories;
+    }
+
+    if (updateUserDto.devices) {
+      const devices = await this.deviceRepository.findByIds(
+        updateUserDto.accessories,
+      );
+      user.devices = devices;
     }
 
     if (updateUserDto.categories) {
