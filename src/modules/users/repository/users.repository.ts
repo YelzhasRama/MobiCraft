@@ -8,6 +8,8 @@ import { AccessoryRepository } from './accessory.repository';
 import { UpdateLoginAndPasswordDto } from '../dto/update-login-and-password.dto';
 import * as bcrypt from 'bcrypt';
 import { DeviceRepository } from './device.repository';
+import { UserRole } from '../../../common/constants/user-role';
+import { GetAllMobilographsQuery } from '../query/get-all-mobilographs.query';
 
 @Injectable()
 export class UsersRepository extends Repository<UserEntity> {
@@ -32,6 +34,21 @@ export class UsersRepository extends Repository<UserEntity> {
 
   async findWithRelations(): Promise<UserEntity[]> {
     return this.find({ relations: ['categories', 'portfolios', 'orders'] });
+  }
+
+  findByTypeAndCity({ city, perPage, page }: GetAllMobilographsQuery) {
+    const queryBuilder = this.createQueryBuilder('mobi').where(
+      'mobi.role = :role',
+      { role: UserRole.MOBILOGRAPH },
+    );
+
+    if (city) {
+      queryBuilder.andWhere('mobi.location = :city', { city });
+    }
+
+    queryBuilder.skip(perPage * (page - 1)).take(perPage);
+
+    return queryBuilder.getManyAndCount();
   }
 
   async findUserById(id: number): Promise<UserEntity | null> {

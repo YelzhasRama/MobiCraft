@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   Param,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from '../service/users.service';
 import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
@@ -24,6 +25,7 @@ import { UserVideosService } from '../service/user-videos.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdateLoginAndPasswordDto } from '../dto/update-login-and-password.dto';
 import { DeviceRepository } from '../repository/device.repository';
+import { GetAllMobilographsQuery } from '../query/get-all-mobilographs.query';
 
 @Controller()
 export class UsersController {
@@ -40,6 +42,21 @@ export class UsersController {
   @Get('user/:id/bio')
   getMe(@Param('id') id: number) {
     return this.usersService.findOne(id);
+  }
+
+  @UseGuards(UserAccessJwtGuard)
+  @Get('mobi/list')
+  async getMobilographsByCity(@Query() query: GetAllMobilographsQuery) {
+    const [mobilographs, total] =
+      await this.usersService.findAllMobilographsByCity(query);
+    return {
+      mobilographs,
+      meta: {
+        total,
+        page: query.page,
+        perPage: query.perPage,
+      },
+    };
   }
 
   @UseGuards(UserAccessJwtGuard)

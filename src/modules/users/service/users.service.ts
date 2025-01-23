@@ -5,6 +5,7 @@ import { UserEntity } from '../../../common/entities/user.entity';
 import { CreateUserDevicesDto } from '../dto/create-user-devices.dto';
 import { AccessoryRepository } from '../repository/accessory.repository';
 import { UpdateLoginAndPasswordDto } from '../dto/update-login-and-password.dto';
+import { GetAllMobilographsQuery } from '../query/get-all-mobilographs.query';
 
 @Injectable()
 export class UsersService {
@@ -13,8 +14,8 @@ export class UsersService {
     private readonly accessoryRepository: AccessoryRepository,
   ) {}
 
-  async findAll(): Promise<UserEntity[]> {
-    return this.usersRepository.findWithRelations();
+  async findAllMobilographsByCity(query: GetAllMobilographsQuery) {
+    return await this.usersRepository.findByTypeAndCity(query);
   }
 
   async findOne(id: number): Promise<UserEntity | null> {

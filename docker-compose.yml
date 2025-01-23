@@ -41,6 +41,21 @@ services:
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: 12345678
+  typesense:
+    container_name: mobicraft_typesense
+    image: typesense/typesense:27.1
+    networks:
+      - mobicraft
+    restart: always
+    ports:
+      - 8108:8108
+    volumes:
+      - typesense:/data
+    environment:
+      TYPESENSE_DATA_DIR: /data
+      TYPESENSE_API_KEY: typesense
+      TYPESENSE_LOG_LEVEL: debug
+      TYPESENSE_ENABLE_CORS: "true"
 
 volumes:
   postgres:
@@ -49,6 +64,8 @@ volumes:
     name: mobicraft-redis
   minio:
     name: mobicraft-minio
+  typesense:
+    name: mobicraft-typesense
 
 networks:
   mobicraft:

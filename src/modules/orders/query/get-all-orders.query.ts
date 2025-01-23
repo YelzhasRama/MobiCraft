@@ -14,6 +14,14 @@ import { Transform } from 'class-transformer';
 
 export class GetAllOrdersQuery extends GetAllWithPaginationQuery {
   @ApiPropertyOptional({
+    description: 'Название заказа',
+    example: 'Сборка мебели',
+  })
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @ApiPropertyOptional({
     description:
       'Идентификаторы категорий (может быть одним числом или массивом чисел)',
     type: [Number],

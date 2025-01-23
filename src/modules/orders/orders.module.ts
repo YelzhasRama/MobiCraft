@@ -6,12 +6,14 @@ import { OrdersRepository } from './repository/orders.repository';
 import { OrderEntity } from '../../common/entities/order.entity';
 import { UsersModule } from '../users/users.module';
 import { ResponsesModule } from '../responses/responses.module';
+import { TypesenseModule } from '../typesense/typesense.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([OrderEntity]),
     UsersModule,
     forwardRef(() => ResponsesModule),
+    TypesenseModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrdersRepository],
