@@ -15,7 +15,16 @@ export class UsersService {
   ) {}
 
   async findAllMobilographsByCity(query: GetAllMobilographsQuery) {
-    return await this.usersRepository.findByTypeAndCity(query);
+    const [mobilographs, total] =
+      await this.usersRepository.findByTypeAndCity(query);
+
+    // Убираем поле password из каждого объекта
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const sanitizedMobilographs = mobilographs.map(({ password, ...rest }) => ({
+      ...rest,
+    }));
+
+    return [sanitizedMobilographs, total];
   }
 
   async findOne(id: number): Promise<UserEntity | null> {

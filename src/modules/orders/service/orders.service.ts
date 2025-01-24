@@ -11,6 +11,7 @@ import { OrderEntity } from '../../../common/entities/order.entity';
 import { GetAllOrdersQuery } from '../query/get-all-orders.query';
 import { ResponsesRepository } from '../../responses/repository/responses.repository';
 import { UsersRepository } from '../../users/repository/users.repository';
+// import { TypesenseService } from '../../typesense/service/typesense.service';
 
 @Injectable()
 export class OrdersService {
@@ -19,9 +20,11 @@ export class OrdersService {
     @Inject(forwardRef(() => ResponsesRepository))
     private readonly responseRepository: ResponsesRepository,
     private readonly usersRepository: UsersRepository,
+    // private readonly typesenseService: TypesenseService,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<OrderEntity> {
+  async create(createOrderDto: CreateOrderDto) {
+    // await this.syncOrderWithTypesense(createOrderDto);
     return this.ordersRepository.createOrder(createOrderDto);
   }
 
@@ -44,6 +47,26 @@ export class OrdersService {
   async remove(id: number): Promise<void> {
     return this.ordersRepository.removeOrder(id);
   }
+
+  // private async syncOrderWithTypesense(order: CreateOrderDto) {
+  //   const client = this.typesenseService.getClient();
+  //
+  //   const document = {
+  //     title: order.title,
+  //     description: order.description,
+  //     city: order.city,
+  //     categoryIds: order.categoryIds,
+  //     typeBudget: order.totalBudget,
+  //     viewsCount: order.viewsCount,
+  //   };
+  //
+  //   try {
+  //     await client.collections('orders').documents().upsert(document);
+  //     console.log('Order synced with Typesense:', order.title);
+  //   } catch (error) {
+  //     console.error('Error syncing order with Typesense:', error);
+  //   }
+  // }
 
   async findAllRequestsByOrderAndClientId(orderId: number, userId: number) {
     const user = await this.usersRepository.findUserById(userId);

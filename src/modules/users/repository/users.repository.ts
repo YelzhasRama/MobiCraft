@@ -37,17 +37,21 @@ export class UsersRepository extends Repository<UserEntity> {
   }
 
   findByTypeAndCity({ city, perPage, page }: GetAllMobilographsQuery) {
-    const queryBuilder = this.createQueryBuilder('mobi').where(
-      'mobi.role = :role',
-      { role: UserRole.MOBILOGRAPH },
-    );
+    const queryBuilder = this.createQueryBuilder('mobi')
+      .leftJoinAndSelect('mobi.categories', 'categories')
+      .where('mobi.role = :role', { role: UserRole.MOBILOGRAPH });
 
+    // Добавляем условие для фильтрации по городу
     if (city) {
       queryBuilder.andWhere('mobi.location = :city', { city });
     }
 
-    queryBuilder.skip(perPage * (page - 1)).take(perPage);
+    // Добавляем пагинацию
+    queryBuilder
+      .skip(perPage * (page - 1))
+      .take(perPage);
 
+    // Выполняем запрос и возвращаем результат
     return queryBuilder.getManyAndCount();
   }
 

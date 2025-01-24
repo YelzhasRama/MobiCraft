@@ -14,7 +14,7 @@ import {
 import { UserEntity } from './user.entity';
 import { CategoryEntity } from './category.entity';
 import { ResponseEntity } from './response.entity';
-import { FavoriteEntity } from "./favorite.entity";
+import { FavoriteEntity } from './favorite.entity';
 
 @Entity('orders')
 export class OrderEntity {
@@ -40,7 +40,7 @@ export class OrderEntity {
 
   @Column({
     name: 'shooting_date',
-    type: 'date',
+    type: 'text',
     nullable: true,
   })
   shootingDate: string;

@@ -13,7 +13,7 @@ import { TypesenseModule } from '../typesense/typesense.module';
     TypeOrmModule.forFeature([OrderEntity]),
     UsersModule,
     forwardRef(() => ResponsesModule),
-    TypesenseModule,
+    forwardRef(() => TypesenseModule),
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrdersRepository],

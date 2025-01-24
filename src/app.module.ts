@@ -12,6 +12,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ResponsesModule } from './modules/responses/responses.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { TypesenseModule } from './modules/typesense/typesense.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TypesenseModule } from './modules/typesense/typesense.module';
     ResponsesModule,
     FavoritesModule,
     TypesenseModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

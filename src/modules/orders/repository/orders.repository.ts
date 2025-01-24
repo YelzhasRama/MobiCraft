@@ -73,6 +73,12 @@ export class OrdersRepository {
     return queryBuilder.getManyAndCount();
   }
 
+  async getAllOrdersForSync() {
+    return this.ordersRepository.find({
+      relations: ['categories'], // Подгружаем связанные категории
+    });
+  }
+
   async createOrder(createOrderDto: CreateOrderDto) {
     const order = this.ordersRepository.create(createOrderDto);
     return this.ordersRepository.save(order);

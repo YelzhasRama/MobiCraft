@@ -11,7 +11,7 @@ export class UpdateOrderDto {
 
   @IsOptional()
   @IsDate()
-  shootingDate?: Date;
+  shootingDate?: string;
 
   @IsOptional()
   @IsNumber()
@@ -20,6 +20,10 @@ export class UpdateOrderDto {
   @IsOptional()
   @IsString()
   city?: string; // Обновлённое поле city
+
+  @IsOptional()
+  @IsNumber()
+  viewsCount?: number;
 
   @IsOptional()
   @IsString()

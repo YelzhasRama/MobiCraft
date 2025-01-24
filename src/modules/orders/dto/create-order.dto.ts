@@ -1,37 +1,41 @@
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsDate } from 'class-validator';
 
 export class CreateOrderDto {
-  @IsString()
   @IsOptional()
-  title: string;
-
   @IsString()
-  @IsOptional()
-  description: string;
+  title?: string;
 
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  shootingDate: string;
+  description?: string;
 
+  @IsOptional()
+  @IsDate()
+  shootingDate?: string;
+
+  @IsOptional()
   @IsNumber()
-  @IsOptional()
-  totalBudget: number; // Убедитесь, что это поле соответствует `totalBudget` в сущности
+  totalBudget?: number; // Обновлённое поле totalBudget
 
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  city: string; // Изменено на 'city', как в сущности
+  city?: string; // Обновлённое поле city
 
+  @IsOptional()
+  @IsNumber()
+  viewsCount?: number;
+
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  chronometry: string; // Изменено на 'chronometry', как в сущности
+  chronometry?: string; // Обновлённое поле chronometry
 
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  clientName: string; // This corresponds to the 'client_name' field in the entity
+  clientName?: string; // Обновлённое поле clientName
 
   @IsOptional()
-  clientId: string; // Идентификатор клиента, связанный с `UserEntity`
+  clientId?: string; // Обновлённое поле clientId
 
   @IsOptional()
-  categoryIds?: string[]; // Массив идентификаторов категорий для связи ManyToMany
+  categoryIds?: string[]; // Массив для категорий
 }

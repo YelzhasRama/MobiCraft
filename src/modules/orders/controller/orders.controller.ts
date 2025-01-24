@@ -16,13 +16,13 @@ import { UserAccessJwtGuard } from '../../auth/guard/user-access-jwt.guard';
 import { GetAllOrdersQuery } from '../query/get-all-orders.query';
 import { AuthenticatedUser } from '../../../common/decorators/authenticated-user.decorator';
 import { AuthenticatedUserObject } from '../../../common/models/authenticated-user-object.model';
-import { OrdersSearchService } from '../../typesense/service/order-search.service';
+// import { OrdersSearchService } from '../../typesense/service/order-search.service';
 
 @Controller()
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
-    private readonly orderSearchService: OrdersSearchService,
+    // private readonly orderSearchService: OrdersSearchService,
   ) {}
 
   @UseGuards(UserAccessJwtGuard)
@@ -43,6 +43,22 @@ export class OrdersController {
       },
     };
   }
+
+  // @Get('/mobi/order/list')
+  // async findAll(@Query() query: GetAllOrdersQuery) {
+  //   // Выполняем поиск в Typesense
+  //   const { hits, found } = await this.orderSearchService.searchOrders(query);
+  //
+  //   // Возвращаем результат из Typesense
+  //   return {
+  //     orders: hits,
+  //     meta: {
+  //       total: found,
+  //       page: query.page,
+  //       perPage: query.perPage,
+  //     },
+  //   };
+  // }
 
   @UseGuards(UserAccessJwtGuard)
   @Get('/orders/:orderId/requests/list')

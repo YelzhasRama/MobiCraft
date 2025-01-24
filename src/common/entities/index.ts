@@ -12,6 +12,7 @@ import { AccessoryEntity } from './accessory.entity';
 import { UserVideosEntity } from './user-videos.entity';
 import { FavoriteEntity } from './favorite.entity';
 import { DeviceEntity } from './device.entity';
+import { NotificationEntity } from './notification.entity';
 
 export const entities = [
   CategoryEntity,
@@ -28,4 +29,5 @@ export const entities = [
   UserVideosEntity,
   FavoriteEntity,
   DeviceEntity,
+  NotificationEntity,
 ];
