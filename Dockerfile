@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Устанавливаем зависимости внутри контейнера
-RUN npm install
+RUN npm install --force
 
 # Копируем весь исходный код в контейнер
 COPY . .
