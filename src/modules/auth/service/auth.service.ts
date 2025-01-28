@@ -20,7 +20,7 @@ import { MailingService } from './mailing.service';
 import { EmailVerificationCodesRepository } from '../repository/email-verification-codes.repository';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { UpdateProfileBody } from '../bodies/update-profile.body';
-import { getInstagramAuthConfig } from '../../../configs/instagram-auth.config';
+// import { getInstagramAuthConfig } from '../../../configs/instagram-auth.config';
 import axios from 'axios';
 import * as crypto from 'crypto';
 
@@ -29,7 +29,7 @@ dayjs.extend(utc);
 @Injectable()
 export class AuthService {
   authConfig = getAuthConfig();
-  instaConfig = getInstagramAuthConfig();
+  // instaConfig = getInstagramAuthConfig();
 
   constructor(
     private readonly userRefreshTokenRepository: AuthRepository,
@@ -275,63 +275,63 @@ export class AuthService {
     await this.userRepository.verifyUserById(user.id);
   }
 
-  async loginWithInstagram(): Promise<string> {
-    // const { clientId, redirectURL } = this.instaConfig;
-    const scope = 'user_profile,user_media';
-
-    // Формируем URL для авторизации Instagram
-    return (
-      `https://api.instagram.com/oauth/authorize?client_id=2907596709415042` +
-      `&redirect_uri=http://localhost:3000/auth/instagram/callback&response_type=code&scope=${scope}`
-    );
-  }
-
-  async handleInstagramCallback(code: string) {
-    const { clientId, clientSecret, redirectURL } = this.instaConfig;
-
-    const tokenUrl = 'https://api.instagram.com/oauth/access_token';
-
-    try {
-      // Получение access_token
-      const response = await axios.post(tokenUrl, null, {
-        params: {
-          client_id: clientId,
-          client_secret: clientSecret,
-          grant_type: 'authorization_code',
-          redirect_uri: redirectURL,
-          code,
-        },
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      return response.data; // Вернет access_token и user_id
-    } catch (error) {
-      throw new BadRequestException(
-        'Failed to exchange code for access token',
-        error,
-      );
-    }
-  }
-
-  async getInstagramUser(accessToken: string) {
-    try {
-      const response = await axios.get('https://graph.instagram.com/me', {
-        params: {
-          fields: 'id,username,account_type',
-          access_token: accessToken,
-        },
-      });
-
-      return response.data; // Возвращает профиль пользователя
-    } catch (error) {
-      throw new BadRequestException(
-        'Failed to fetch Instagram user data',
-        error,
-      );
-    }
-  }
+  // async loginWithInstagram(): Promise<string> {
+  //   // const { clientId, redirectURL } = this.instaConfig;
+  //   const scope = 'user_profile,user_media';
+  //
+  //   // Формируем URL для авторизации Instagram
+  //   return (
+  //     `https://api.instagram.com/oauth/authorize?client_id=2907596709415042` +
+  //     `&redirect_uri=http://localhost:3000/auth/instagram/callback&response_type=code&scope=${scope}`
+  //   );
+  // }
+  //
+  // async handleInstagramCallback(code: string) {
+  //   const { clientId, clientSecret, redirectURL } = this.instaConfig;
+  //
+  //   const tokenUrl = 'https://api.instagram.com/oauth/access_token';
+  //
+  //   try {
+  //     // Получение access_token
+  //     const response = await axios.post(tokenUrl, null, {
+  //       params: {
+  //         client_id: clientId,
+  //         client_secret: clientSecret,
+  //         grant_type: 'authorization_code',
+  //         redirect_uri: redirectURL,
+  //         code,
+  //       },
+  //       headers: {
+  //         'Content-Type': 'application/x-www-form-urlencoded',
+  //       },
+  //     });
+  //
+  //     return response.data; // Вернет access_token и user_id
+  //   } catch (error) {
+  //     throw new BadRequestException(
+  //       'Failed to exchange code for access token',
+  //       error,
+  //     );
+  //   }
+  // }
+  //
+  // async getInstagramUser(accessToken: string) {
+  //   try {
+  //     const response = await axios.get('https://graph.instagram.com/me', {
+  //       params: {
+  //         fields: 'id,username,account_type',
+  //         access_token: accessToken,
+  //       },
+  //     });
+  //
+  //     return response.data; // Возвращает профиль пользователя
+  //   } catch (error) {
+  //     throw new BadRequestException(
+  //       'Failed to fetch Instagram user data',
+  //       error,
+  //     );
+  //   }
+  // }
 
   //// Tiktok
   private stateStore = new Map<string, { codeVerifier: string }>();
@@ -391,7 +391,8 @@ export class AuthService {
           client_id: 'sbawqpwpgmi0fvv65c',
           client_secret: 'ldAD2y6VgqFkFcmhfDYFsgXt0tggjrcx',
           grant_type: 'authorization_code',
-          redirect_uri: 'https://mobicraft-production.up.railway.app/auth/tiktok/callback',
+          redirect_uri:
+            'https://mobicraft-production.up.railway.app/auth/tiktok/callback',
           code,
           code_verifier: codeVerifier, // Передаем code_verifier
         },

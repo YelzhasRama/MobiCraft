@@ -92,33 +92,33 @@ export class AuthController {
     });
   }
 
-  @Post('instagram-login')
-  @Redirect() // NestJS автоматически выполняет редирект
-  async getInstagramLoginUrl() {
-    const instagramLoginUrl = await this.authService.loginWithInstagram();
-    return { url: instagramLoginUrl }; // Указываем URL для редиректа
-  }
-
-  @Post('instagram/callback')
-  async handleInstagramCallback(@Query('code') code: string) {
-    console.log(code);
-    if (!code) {
-      throw new BadRequestException('Authorization code is missing');
-    }
-
-    // Обрабатываем callback и возвращаем токен или ошибку
-    return await this.authService.handleInstagramCallback(code);
-  }
-
-  @Get('instagram/user')
-  async getInstagramUser(@Query('accessToken') accessToken: string) {
-    console.log(accessToken);
-    if (!accessToken) {
-      throw new BadRequestException('Access token is required');
-    }
-
-    return await this.authService.getInstagramUser(accessToken);
-  }
+  // @Post('instagram-login')
+  // @Redirect() // NestJS автоматически выполняет редирект
+  // async getInstagramLoginUrl() {
+  //   const instagramLoginUrl = await this.authService.loginWithInstagram();
+  //   return { url: instagramLoginUrl }; // Указываем URL для редиректа
+  // }
+  //
+  // @Post('instagram/callback')
+  // async handleInstagramCallback(@Query('code') code: string) {
+  //   console.log(code);
+  //   if (!code) {
+  //     throw new BadRequestException('Authorization code is missing');
+  //   }
+  //
+  //   // Обрабатываем callback и возвращаем токен или ошибку
+  //   return await this.authService.handleInstagramCallback(code);
+  // }
+  //
+  // @Get('instagram/user')
+  // async getInstagramUser(@Query('accessToken') accessToken: string) {
+  //   console.log(accessToken);
+  //   if (!accessToken) {
+  //     throw new BadRequestException('Access token is required');
+  //   }
+  //
+  //   return await this.authService.getInstagramUser(accessToken);
+  // }
 
   // TikTok
 

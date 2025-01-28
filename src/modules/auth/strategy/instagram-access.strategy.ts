@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
-import { getInstagramAuthConfig } from '../../../configs/instagram-auth.config';
+// import { getInstagramAuthConfig } from '../../../configs/instagram-auth.config';
 
-const instaConfig = getInstagramAuthConfig();
+// const instaConfig = getInstagramAuthConfig();
 
 @Injectable()
 export class InstagramAccessStrategy extends PassportStrategy(
