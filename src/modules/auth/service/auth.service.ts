@@ -343,7 +343,8 @@ export class AuthService {
     this.stateStore.set(csrfState, { codeVerifier });
 
     const client_key = 'sbawqpwpgmi0fvv65c';
-    const redirectUrl = 'http://localhost:3000/auth/tiktok/callback';
+    const redirectUrl =
+      'https://mobicraft-production.up.railway.app/auth/tiktok/callback';
     const scope = 'user.info.basic';
 
     // Генерация URL с PKCE
@@ -390,7 +391,7 @@ export class AuthService {
           client_id: 'sbawqpwpgmi0fvv65c',
           client_secret: 'ldAD2y6VgqFkFcmhfDYFsgXt0tggjrcx',
           grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost:3000/auth/tiktok/callback',
+          redirect_uri: 'https://mobicraft-production.up.railway.app/auth/tiktok/callback',
           code,
           code_verifier: codeVerifier, // Передаем code_verifier
         },
