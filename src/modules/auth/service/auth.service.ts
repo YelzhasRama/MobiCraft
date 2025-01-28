@@ -20,12 +20,16 @@ import { MailingService } from './mailing.service';
 import { EmailVerificationCodesRepository } from '../repository/email-verification-codes.repository';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { UpdateProfileBody } from '../bodies/update-profile.body';
+import { getInstagramAuthConfig } from '../../../configs/instagram-auth.config';
+import axios from 'axios';
+import * as crypto from 'crypto';
 
 dayjs.extend(utc);
 
 @Injectable()
 export class AuthService {
   authConfig = getAuthConfig();
+  instaConfig = getInstagramAuthConfig();
 
   constructor(
     private readonly userRefreshTokenRepository: AuthRepository,
@@ -269,5 +273,153 @@ export class AuthService {
 
     await this.emailVerificationCodesRepository.setAsUsedByUserId(user.id);
     await this.userRepository.verifyUserById(user.id);
+  }
+
+  async loginWithInstagram(): Promise<string> {
+    // const { clientId, redirectURL } = this.instaConfig;
+    const scope = 'user_profile,user_media';
+
+    // Формируем URL для авторизации Instagram
+    return (
+      `https://api.instagram.com/oauth/authorize?client_id=2907596709415042` +
+      `&redirect_uri=http://localhost:3000/auth/instagram/callback&response_type=code&scope=${scope}`
+    );
+  }
+
+  async handleInstagramCallback(code: string) {
+    const { clientId, clientSecret, redirectURL } = this.instaConfig;
+
+    const tokenUrl = 'https://api.instagram.com/oauth/access_token';
+
+    try {
+      // Получение access_token
+      const response = await axios.post(tokenUrl, null, {
+        params: {
+          client_id: clientId,
+          client_secret: clientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: redirectURL,
+          code,
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+
+      return response.data; // Вернет access_token и user_id
+    } catch (error) {
+      throw new BadRequestException(
+        'Failed to exchange code for access token',
+        error,
+      );
+    }
+  }
+
+  async getInstagramUser(accessToken: string) {
+    try {
+      const response = await axios.get('https://graph.instagram.com/me', {
+        params: {
+          fields: 'id,username,account_type',
+          access_token: accessToken,
+        },
+      });
+
+      return response.data; // Возвращает профиль пользователя
+    } catch (error) {
+      throw new BadRequestException(
+        'Failed to fetch Instagram user data',
+        error,
+      );
+    }
+  }
+
+  //// Tiktok
+  private stateStore = new Map<string, { codeVerifier: string }>();
+  async loginWithTiktok(): Promise<string> {
+    const csrfState = Math.random().toString(36).substring(2); // Случайное состояние
+    const { codeVerifier, codeChallenge } = await this.generatePKCE();
+
+    // Сохраняем state и code_verifier
+    this.stateStore.set(csrfState, { codeVerifier });
+
+    const client_key = 'sbawqpwpgmi0fvv65c';
+    const redirectUrl = 'http://localhost:3000/auth/tiktok/callback';
+    const scope = 'user.info.basic';
+
+    // Генерация URL с PKCE
+    return `https://www.tiktok.com/auth/authorize?client_key=${client_key}&redirect_uri=${redirectUrl}&response_type=code&scope=${scope}&state=${csrfState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+  }
+
+  async generatePKCE() {
+    // Генерация случайного code_verifier
+    const codeVerifier = crypto.randomBytes(32).toString('base64url'); // Base64-URL-encoded
+
+    // Генерация code_challenge с использованием SHA-256
+    const codeChallenge = crypto
+      .createHash('sha256')
+      .update(codeVerifier)
+      .digest('base64url'); // Base64-URL-encoded
+
+    return { codeVerifier, codeChallenge };
+  }
+
+  // Проверка state
+  validateState(state: string): boolean {
+    if (this.stateStore.has(state)) {
+      this.stateStore.delete(state); // Удаляем state после использования
+      return true;
+    }
+    return false;
+  }
+
+  // Обработка callback и получение токенов
+  async handleTiktokCallback(code: string, state: string) {
+    if (!this.stateStore.has(state)) {
+      throw new Error('Invalid state parameter');
+    }
+
+    const { codeVerifier } = this.stateStore.get(state)!; // Получаем code_verifier для данного состояния
+    this.stateStore.delete(state); // Удаляем state после использования
+
+    const tokenUrl = 'https://open.tiktokapis.com/v2/oauth/token/';
+
+    try {
+      // Запрос на получение access_token
+      const response = await axios.post(tokenUrl, null, {
+        params: {
+          client_id: 'sbawqpwpgmi0fvv65c',
+          client_secret: 'ldAD2y6VgqFkFcmhfDYFsgXt0tggjrcx',
+          grant_type: 'authorization_code',
+          redirect_uri: 'http://localhost:3000/auth/tiktok/callback',
+          code,
+          code_verifier: codeVerifier, // Передаем code_verifier
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+
+      return response.data; // Возвращает access_token и user_id
+    } catch (error) {
+      console.error('Error exchanging code for token:', error);
+      throw new Error('Failed to exchange code for access token');
+    }
+  }
+
+  // Получение информации о пользователе
+  async getTiktokUser(accessToken: string): Promise<any> {
+    const userInfoUrl = 'https://open.tiktokapis.com/v2/user/info/';
+
+    try {
+      const response = await axios.get(userInfoUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      return response.data; // Возвращаем данные пользователя
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch TikTok user data', error);
+    }
   }
 }

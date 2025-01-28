@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -6,6 +7,8 @@ import {
   HttpStatus,
   Patch,
   Post,
+  Query,
+  Redirect,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -87,5 +90,72 @@ export class AuthController {
       userId: user.userId,
       code: body.code,
     });
+  }
+
+  @Post('instagram-login')
+  @Redirect() // NestJS автоматически выполняет редирект
+  async getInstagramLoginUrl() {
+    const instagramLoginUrl = await this.authService.loginWithInstagram();
+    return { url: instagramLoginUrl }; // Указываем URL для редиректа
+  }
+
+  @Post('instagram/callback')
+  async handleInstagramCallback(@Query('code') code: string) {
+    console.log(code);
+    if (!code) {
+      throw new BadRequestException('Authorization code is missing');
+    }
+
+    // Обрабатываем callback и возвращаем токен или ошибку
+    return await this.authService.handleInstagramCallback(code);
+  }
+
+  @Get('instagram/user')
+  async getInstagramUser(@Query('accessToken') accessToken: string) {
+    console.log(accessToken);
+    if (!accessToken) {
+      throw new BadRequestException('Access token is required');
+    }
+
+    return await this.authService.getInstagramUser(accessToken);
+  }
+
+  // TikTok
+
+  @Get('tiktok-login')
+  async getTiktokLoginUrl() {
+    const tiktokLoginUrl = await this.authService.loginWithTiktok();
+    return { url: tiktokLoginUrl }; // Возвращаем URL для авторизации
+  }
+
+  // Callback после авторизации
+  @Get('tiktok/callback')
+  async handleTiktokCallback(
+    @Query('code') code: string,
+    @Query('state') state: string,
+  ) {
+    if (!code) {
+      throw new BadRequestException('Authorization code is missing');
+    }
+
+    // Проверяем state для безопасности (CSRF-защита)
+    if (!this.authService.validateState(state)) {
+      throw new BadRequestException('Invalid state parameter');
+    }
+
+    // Обрабатываем callback и возвращаем токен
+    const tokens = await this.authService.handleTiktokCallback(code, state);
+    return tokens;
+  }
+
+  // Получение данных пользователя TikTok
+  @Get('tiktok/user')
+  async getTiktokUser(@Query('accessToken') accessToken: string) {
+    if (!accessToken) {
+      throw new BadRequestException('Access token is required');
+    }
+
+    const user = await this.authService.getTiktokUser(accessToken);
+    return user;
   }
 }
