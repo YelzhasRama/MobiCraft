@@ -14,36 +14,28 @@ import { Transform } from 'class-transformer';
 
 export class GetAllOrdersQuery extends GetAllWithPaginationQuery {
   @ApiPropertyOptional({
-    description: 'Название заказа',
+    description: 'Поиск по названию и описанию заказа',
     example: 'Сборка мебели',
   })
   @IsOptional()
   @IsString()
-  title?: string;
+  search?: string;
 
-  @ApiPropertyOptional({
-    description:
-      'Идентификаторы категорий (может быть одним числом или массивом чисел)',
-    type: [Number],
-    example: [1, 2],
-  })
-  @IsOptional()
   @Transform(({ value }) => {
+    // Если это строка, то пытаемся преобразовать в массив
     if (typeof value === 'string') {
       // Преобразуем строку в массив, если есть запятая
       return value.includes(',')
-        ? value.split(',').map((id) => parseInt(id, 10))
-        : parseInt(value, 10);
+        ? value.split(',').map((id) => parseInt(id, 10)) // Разбиваем строку на массив чисел
+        : [parseInt(value, 10)]; // Если только одно значение, делаем массив с одним элементом
     }
+    // Если это уже массив, возвращаем как есть
     return value;
   })
-  @ValidateIf((obj) => Array.isArray(obj.categoryIds))
   @IsArray()
-  @ArrayUnique()
-  @IsInt({ each: true })
-  @ValidateIf((obj) => !Array.isArray(obj.categoryIds))
-  @IsInt()
-  categoryIds?: number | number[];
+  @ArrayUnique() // Убираем дубликаты
+  @IsInt({ each: true }) // Проверка, чтобы каждый элемент был целым числом
+  categoryIds?: number[];
 
   @ApiPropertyOptional()
   @IsOptional()

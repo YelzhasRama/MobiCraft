@@ -1,16 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { OrderEntity } from '../../../common/entities/order.entity';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { UpdateOrderDto } from '../dto/update-order.dto';
 import { GetAllOrdersQuery } from '../query/get-all-orders.query';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UsersRepository } from '../../users/repository/users.repository';
 
 @Injectable()
 export class OrdersRepository {
   constructor(
     @InjectRepository(OrderEntity)
     private readonly ordersRepository: Repository<OrderEntity>,
+    private readonly usersRepository: UsersRepository,
   ) {}
 
   getAll({
@@ -20,6 +22,7 @@ export class OrdersRepository {
     sort,
     typeBudget,
     city,
+    search,
   }: GetAllOrdersQuery) {
     const queryBuilder = this.ordersRepository
       .createQueryBuilder('o') // Используем 'o' вместо 'order'
@@ -28,8 +31,12 @@ export class OrdersRepository {
 
     // Фильтрация по категориям
     if (categoryIds) {
+      // Убираем дубликаты с помощью Set и проверяем, что это массив
+      const uniqueCategoryIds = Array.from(
+        new Set(Array.isArray(categoryIds) ? categoryIds : [categoryIds]),
+      );
       queryBuilder.andWhere('category.id IN (:...categoryIds)', {
-        categoryIds,
+        categoryIds: uniqueCategoryIds,
       });
     }
 
@@ -49,6 +56,16 @@ export class OrdersRepository {
     // Фильтрация по городу
     if (city) {
       queryBuilder.andWhere('o.city = :city', { city });
+    }
+
+    // Поиск по title и description
+    if (search) {
+      queryBuilder.andWhere(
+        '(o.title LIKE :search OR o.description LIKE :search)',
+        {
+          search: `%${search}%`, // Ищем по частичному совпадению
+        },
+      );
     }
 
     // Сортировка по параметрам
@@ -79,8 +96,20 @@ export class OrdersRepository {
     });
   }
 
-  async createOrder(createOrderDto: CreateOrderDto) {
-    const order = this.ordersRepository.create(createOrderDto);
+  async createOrder(createOrderDto: CreateOrderDto, userId: number) {
+    // Fetch the user by userId
+    const user = await this.usersRepository.findUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Create the order, with the actual UserEntity instance for the client
+    const order = this.ordersRepository.create({
+      ...createOrderDto,
+      client: user, // Pass the UserEntity instance, not just the userId
+    });
+
     return this.ordersRepository.save(order);
   }
 

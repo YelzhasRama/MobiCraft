@@ -34,8 +34,5 @@ export class CreateOrderDto {
   clientName?: string; // Обновлённое поле clientName
 
   @IsOptional()
-  clientId?: string; // Обновлённое поле clientId
-
-  @IsOptional()
   categoryIds?: string[]; // Массив для категорий
 }

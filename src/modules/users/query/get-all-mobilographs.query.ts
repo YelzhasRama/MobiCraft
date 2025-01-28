@@ -5,4 +5,8 @@ export class GetAllMobilographsQuery extends GetAllWithPaginationQuery {
   @IsOptional()
   @IsString()
   city?: string;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

@@ -7,8 +7,11 @@ import { GetAllWithPaginationQuery } from '../../../common/queries/get-all-with-
 export class PortfolioService {
   constructor(private readonly portfolioRepository: PortfolioRepository) {}
 
-  async create(createPortfolioDto: CreatePortfolioDto) {
-    return await this.portfolioRepository.createPortfolio(createPortfolioDto);
+  async create(createPortfolioDto: CreatePortfolioDto, userId: number) {
+    return await this.portfolioRepository.createPortfolio(
+      createPortfolioDto,
+      userId,
+    );
   }
 
   async findAll(id: number, query: GetAllWithPaginationQuery) {

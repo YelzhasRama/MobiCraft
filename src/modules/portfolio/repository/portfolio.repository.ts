@@ -12,9 +12,10 @@ export class PortfolioRepository {
     private readonly portfolioRepository: Repository<PortfolioEntity>,
   ) {}
 
-  async createPortfolio(payload: CreatePortfolioDto) {
+  async createPortfolio(payload: CreatePortfolioDto, userId: number) {
     const portfolio = this.portfolioRepository.create({
       title: 'myPortfolio',
+      userId: userId,
       ...payload,
     });
 

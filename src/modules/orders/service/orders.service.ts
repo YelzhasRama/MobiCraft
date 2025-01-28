@@ -23,9 +23,9 @@ export class OrdersService {
     // private readonly typesenseService: TypesenseService,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto) {
+  async create(createOrderDto: CreateOrderDto, userId: number) {
     // await this.syncOrderWithTypesense(createOrderDto);
-    return this.ordersRepository.createOrder(createOrderDto);
+    return this.ordersRepository.createOrder(createOrderDto, userId);
   }
 
   async findAll(query: GetAllOrdersQuery) {

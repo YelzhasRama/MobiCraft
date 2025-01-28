@@ -335,6 +335,8 @@ export class AuthService {
 
   //// Tiktok
   private stateStore = new Map<string, { codeVerifier: string }>();
+
+  // Логика для получения URL для авторизации через TikTok
   async loginWithTiktok(): Promise<string> {
     const csrfState = Math.random().toString(36).substring(2); // Случайное состояние
     const { codeVerifier, codeChallenge } = await this.generatePKCE();
@@ -344,27 +346,24 @@ export class AuthService {
 
     const client_key = 'sbawqpwpgmi0fvv65c';
     const redirectUrl =
-      'https://mobicraft-production.up.railway.app/auth/tiktok/callback';
+      'https://mobicraft-production.up.railway.app/auth/tiktok/callback'; // Убедитесь, что это правильный URL
     const scope = 'user.info.basic';
 
-    // Генерация URL с PKCE
+    // Генерация URL для авторизации
     return `https://www.tiktok.com/auth/authorize?client_key=${client_key}&redirect_uri=${redirectUrl}&response_type=code&scope=${scope}&state=${csrfState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
   }
 
-  async generatePKCE() {
-    // Генерация случайного code_verifier
-    const codeVerifier = crypto.randomBytes(32).toString('base64url'); // Base64-URL-encoded
-
-    // Генерация code_challenge с использованием SHA-256
+  // Генерация PKCE
+  private async generatePKCE() {
+    const codeVerifier = crypto.randomBytes(32).toString('base64url'); // Генерация случайного code_verifier
     const codeChallenge = crypto
       .createHash('sha256')
       .update(codeVerifier)
-      .digest('base64url'); // Base64-URL-encoded
-
+      .digest('base64url'); // Генерация code_challenge с использованием SHA-256
     return { codeVerifier, codeChallenge };
   }
 
-  // Проверка state
+  // Проверка состояния (CSRF-защита)
   validateState(state: string): boolean {
     if (this.stateStore.has(state)) {
       this.stateStore.delete(state); // Удаляем state после использования
@@ -373,7 +372,7 @@ export class AuthService {
     return false;
   }
 
-  // Обработка callback и получение токенов
+  // Обработка callback от TikTok и получение токенов
   async handleTiktokCallback(code: string, state: string) {
     if (!this.stateStore.has(state)) {
       throw new Error('Invalid state parameter');
@@ -385,14 +384,13 @@ export class AuthService {
     const tokenUrl = 'https://open.tiktokapis.com/v2/oauth/token/';
 
     try {
-      // Запрос на получение access_token
       const response = await axios.post(tokenUrl, null, {
         params: {
           client_id: 'sbawqpwpgmi0fvv65c',
           client_secret: 'ldAD2y6VgqFkFcmhfDYFsgXt0tggjrcx',
           grant_type: 'authorization_code',
           redirect_uri:
-            'https://mobicraft-production.up.railway.app/auth/tiktok/callback',
+            'https://mobicraft-production.up.railway.app/auth/tiktok/callback', // Убедитесь, что это правильный URL
           code,
           code_verifier: codeVerifier, // Передаем code_verifier
         },
@@ -408,7 +406,7 @@ export class AuthService {
     }
   }
 
-  // Получение информации о пользователе
+  // Получение информации о пользователе TikTok
   async getTiktokUser(accessToken: string): Promise<any> {
     const userInfoUrl = 'https://open.tiktokapis.com/v2/user/info/';
 
@@ -421,7 +419,8 @@ export class AuthService {
 
       return response.data; // Возвращаем данные пользователя
     } catch (error) {
-      throw new BadRequestException('Failed to fetch TikTok user data', error);
+      console.error('Error fetching user info:', error);
+      throw new BadRequestException('Failed to fetch TikTok user data');
     }
   }
 }

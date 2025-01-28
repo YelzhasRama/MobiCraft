@@ -27,8 +27,11 @@ export class OrdersController {
 
   @UseGuards(UserAccessJwtGuard)
   @Post('/client/order/create')
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+  create(
+    @Body() createOrderDto: CreateOrderDto,
+    @AuthenticatedUser() user: AuthenticatedUserObject,
+  ) {
+    return this.ordersService.create(createOrderDto, user.userId);
   }
 
   @Get('/mobi/order/list')
