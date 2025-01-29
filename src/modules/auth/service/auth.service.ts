@@ -23,6 +23,7 @@ import { UpdateProfileBody } from '../bodies/update-profile.body';
 // import { getInstagramAuthConfig } from '../../../configs/instagram-auth.config';
 import axios from 'axios';
 import * as crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 dayjs.extend(utc);
 
@@ -37,6 +38,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailingService: MailingService,
     private readonly emailVerificationCodesRepository: EmailVerificationCodesRepository,
+    private readonly configService: ConfigService,
   ) {}
 
   async register(payload: RegisterBody): Promise<AuthTokens> {
@@ -337,20 +339,43 @@ export class AuthService {
   private stateStore = new Map<string, { codeVerifier: string }>();
 
   // Логика для получения URL для авторизации через TikTok
-  async loginWithTiktok(): Promise<string> {
+  async loginWithTiktok(): Promise<{
+    url: string;
+    csrfToken: string;
+  }> {
     const csrfState = Math.random().toString(36).substring(2); // Случайное состояние
     const { codeVerifier, codeChallenge } = await this.generatePKCE();
 
     // Сохраняем state и code_verifier
     this.stateStore.set(csrfState, { codeVerifier });
 
-    const client_key = 'sbawqpwpgmi0fvv65c';
-    const redirectUrl =
-      'https://mobicraft-production.up.railway.app/auth/tiktok/callback'; // Убедитесь, что это правильный URL
+    const clientKey = this.configService.get<string>('TIKTOK_CLIENT_ID');
+    const redirectUrl = this.configService.get<string>('TIKTOK_REDIRECT_URL');
     const scope = 'user.info.basic';
 
+    const BASE_URL = 'https://www.tiktok.com/v2/auth/authorize/';
+
+    // construct url
+
+    const url = new URL(BASE_URL);
+
+    url.searchParams.append('client_key', clientKey);
+    url.searchParams.append('redirect_uri', redirectUrl);
+    url.searchParams.append('response_type', 'code');
+    url.searchParams.append('scope', scope);
+    url.searchParams.append('state', csrfState);
+
+    console.log(csrfState);
+
+    return {
+      url: url.toString(),
+      csrfToken: csrfState,
+    };
+
+    // const encodedRedirectUrl = encodeURIComponent(redirectUrl);
+
     // Генерация URL для авторизации
-    return `https://www.tiktok.com/auth/authorize?client_key=${client_key}&redirect_uri=${redirectUrl}&response_type=code&scope=${scope}&state=${csrfState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+    // return `https://www.tiktok.com/auth/authorize?client_key=${client_key}&redirect_uri=${encodedRedirectUrl}&response_type=code&scope=${scope}&state=${csrfState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
   }
 
   // Генерация PKCE
@@ -374,28 +399,36 @@ export class AuthService {
 
   // Обработка callback от TikTok и получение токенов
   async handleTiktokCallback(code: string, state: string) {
-    if (!this.stateStore.has(state)) {
-      throw new Error('Invalid state parameter');
-    }
+    console.log(code, state, this.stateStore);
 
-    const { codeVerifier } = this.stateStore.get(state)!; // Получаем code_verifier для данного состояния
-    this.stateStore.delete(state); // Удаляем state после использования
+    // if (!this.stateStore.has(state)) {
+    //   throw new Error('Invalid state parameter');
+    // }
+
+    // const { codeVerifier } = this.stateStore.get(state)!; // Получаем code_verifier для данного состояния
+    // this.stateStore.delete(state); // Удаляем state после использования
 
     const tokenUrl = 'https://open.tiktokapis.com/v2/oauth/token/';
 
+    const clientId = this.configService.get<string>('TIKTOK_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('TIKTOK_CLIENT_SECRET');
+    const redirectUrl = this.configService.get<string>('TIKTOK_REDIRECT_URL');
+
     try {
-      const response = await axios.post(tokenUrl, null, {
-        params: {
-          client_id: 'sbawqpwpgmi0fvv65c',
-          client_secret: 'ldAD2y6VgqFkFcmhfDYFsgXt0tggjrcx',
-          grant_type: 'authorization_code',
-          redirect_uri:
-            'https://mobicraft-production.up.railway.app/auth/tiktok/callback', // Убедитесь, что это правильный URL
-          code,
-          code_verifier: codeVerifier, // Передаем code_verifier
-        },
+      const params = new URLSearchParams({
+        client_key: clientId,
+        client_secret: clientSecret,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUrl,
+        code: decodeURI(code),
+      });
+
+      // params.append('code_verifier', codeVerifier); // Передаем code_verifier
+
+      const response = await axios.post(tokenUrl, params.toString(), {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
+          'Cache-Control': 'no-cache',
         },
       });
 
