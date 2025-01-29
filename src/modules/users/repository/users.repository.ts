@@ -36,22 +36,24 @@ export class UsersRepository extends Repository<UserEntity> {
     return this.find({ relations: ['categories', 'portfolios', 'orders'] });
   }
 
-  findByTypeAndCity({ city, perPage, page }: GetAllMobilographsQuery) {
+  findByTypeAndCityAndName({ city, search, perPage, page }: GetAllMobilographsQuery) {
     const queryBuilder = this.createQueryBuilder('mobi')
       .leftJoinAndSelect('mobi.categories', 'categories')
       .where('mobi.role = :role', { role: UserRole.MOBILOGRAPH });
 
-    // Добавляем условие для фильтрации по городу
+    // Фильтрация по городу
     if (city) {
       queryBuilder.andWhere('mobi.location = :city', { city });
     }
 
-    // Добавляем пагинацию
-    queryBuilder
-      .skip(perPage * (page - 1))
-      .take(perPage);
+    // 🔍 Фильтрация по имени (search)
+    if (search) {
+      queryBuilder.andWhere('mobi.name ILIKE :search', { search: `%${search}%` });
+    }
 
-    // Выполняем запрос и возвращаем результат
+    // Пагинация
+    queryBuilder.skip(perPage * (page - 1)).take(perPage);
+
     return queryBuilder.getManyAndCount();
   }
 

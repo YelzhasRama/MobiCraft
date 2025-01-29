@@ -32,6 +32,7 @@ export class GetAllOrdersQuery extends GetAllWithPaginationQuery {
     // Если это уже массив, возвращаем как есть
     return value;
   })
+  @IsOptional()
   @IsArray()
   @ArrayUnique() // Убираем дубликаты
   @IsInt({ each: true }) // Проверка, чтобы каждый элемент был целым числом

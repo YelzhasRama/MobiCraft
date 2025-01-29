@@ -16,7 +16,7 @@ export class UsersService {
 
   async findAllMobilographsByCity(query: GetAllMobilographsQuery) {
     const [mobilographs, total] =
-      await this.usersRepository.findByTypeAndCity(query);
+      await this.usersRepository.findByTypeAndCityAndName(query);
 
     // Убираем поле password из каждого объекта
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
