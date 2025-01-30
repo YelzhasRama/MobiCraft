@@ -137,13 +137,6 @@ export class AuthController {
     if (!code) {
       throw new BadRequestException('Authorization code is missing');
     }
-
-    // // Проверяем state для безопасности (CSRF-защита)
-    // if (!this.authService.validateState(state)) {
-    //   throw new BadRequestException('Invalid state parameter');
-    // }
-
-    // Обрабатываем callback и возвращаем токен
     const tokens = await this.authService.handleTiktokCallback(code, state);
 
     // TODO: надо что-то сделать с токенами, скорее всего передать фронту каким-то образом или записать в базу

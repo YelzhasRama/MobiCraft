@@ -355,8 +355,6 @@ export class AuthService {
 
     const BASE_URL = 'https://www.tiktok.com/v2/auth/authorize/';
 
-    // construct url
-
     const url = new URL(BASE_URL);
 
     url.searchParams.append('client_key', clientKey);
@@ -365,20 +363,12 @@ export class AuthService {
     url.searchParams.append('scope', scope);
     url.searchParams.append('state', csrfState);
 
-    console.log(csrfState);
-
     return {
       url: url.toString(),
       csrfToken: csrfState,
     };
-
-    // const encodedRedirectUrl = encodeURIComponent(redirectUrl);
-
-    // Генерация URL для авторизации
-    // return `https://www.tiktok.com/auth/authorize?client_key=${client_key}&redirect_uri=${encodedRedirectUrl}&response_type=code&scope=${scope}&state=${csrfState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
   }
 
-  // Генерация PKCE
   private async generatePKCE() {
     const codeVerifier = crypto.randomBytes(32).toString('base64url'); // Генерация случайного code_verifier
     const codeChallenge = crypto
@@ -388,25 +378,9 @@ export class AuthService {
     return { codeVerifier, codeChallenge };
   }
 
-  // Проверка состояния (CSRF-защита)
-  validateState(state: string): boolean {
-    if (this.stateStore.has(state)) {
-      this.stateStore.delete(state); // Удаляем state после использования
-      return true;
-    }
-    return false;
-  }
-
   // Обработка callback от TikTok и получение токенов
   async handleTiktokCallback(code: string, state: string) {
     console.log(code, state, this.stateStore);
-
-    // if (!this.stateStore.has(state)) {
-    //   throw new Error('Invalid state parameter');
-    // }
-
-    // const { codeVerifier } = this.stateStore.get(state)!; // Получаем code_verifier для данного состояния
-    // this.stateStore.delete(state); // Удаляем state после использования
 
     const tokenUrl = 'https://open.tiktokapis.com/v2/oauth/token/';
 
@@ -422,8 +396,6 @@ export class AuthService {
         redirect_uri: redirectUrl,
         code: decodeURI(code),
       });
-
-      // params.append('code_verifier', codeVerifier); // Передаем code_verifier
 
       const response = await axios.post(tokenUrl, params.toString(), {
         headers: {
@@ -441,12 +413,16 @@ export class AuthService {
 
   // Получение информации о пользователе TikTok
   async getTiktokUser(accessToken: string): Promise<any> {
-    const userInfoUrl = 'https://open.tiktokapis.com/v2/user/info/';
+    const userInfoUrl =
+      'https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name';
 
     try {
       const response = await axios.get(userInfoUrl, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          fields: 'id,username,avatar,nickname', // Указываем нужные поля
         },
       });
 
