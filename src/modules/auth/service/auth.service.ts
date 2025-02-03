@@ -128,8 +128,8 @@ export class AuthService {
     };
   }
 
-  async logout(userId: number): Promise<void> {
-    await this.userRefreshTokenRepository.deleteOneByUserId(userId);
+  logout(userId: number): Promise<void> {
+    return this.userRefreshTokenRepository.deleteOneByUserId(userId);
   }
 
   async refreshTokens(
@@ -277,73 +277,14 @@ export class AuthService {
     await this.userRepository.verifyUserById(user.id);
   }
 
-  // async loginWithInstagram(): Promise<string> {
-  //   // const { clientId, redirectURL } = this.instaConfig;
-  //   const scope = 'user_profile,user_media';
-  //
-  //   // Формируем URL для авторизации Instagram
-  //   return (
-  //     `https://api.instagram.com/oauth/authorize?client_id=2907596709415042` +
-  //     `&redirect_uri=http://localhost:3000/auth/instagram/callback&response_type=code&scope=${scope}`
-  //   );
-  // }
-  //
-  // async handleInstagramCallback(code: string) {
-  //   const { clientId, clientSecret, redirectURL } = this.instaConfig;
-  //
-  //   const tokenUrl = 'https://api.instagram.com/oauth/access_token';
-  //
-  //   try {
-  //     // Получение access_token
-  //     const response = await axios.post(tokenUrl, null, {
-  //       params: {
-  //         client_id: clientId,
-  //         client_secret: clientSecret,
-  //         grant_type: 'authorization_code',
-  //         redirect_uri: redirectURL,
-  //         code,
-  //       },
-  //       headers: {
-  //         'Content-Type': 'application/x-www-form-urlencoded',
-  //       },
-  //     });
-  //
-  //     return response.data; // Вернет access_token и user_id
-  //   } catch (error) {
-  //     throw new BadRequestException(
-  //       'Failed to exchange code for access token',
-  //       error,
-  //     );
-  //   }
-  // }
-  //
-  // async getInstagramUser(accessToken: string) {
-  //   try {
-  //     const response = await axios.get('https://graph.instagram.com/me', {
-  //       params: {
-  //         fields: 'id,username,account_type',
-  //         access_token: accessToken,
-  //       },
-  //     });
-  //
-  //     return response.data; // Возвращает профиль пользователя
-  //   } catch (error) {
-  //     throw new BadRequestException(
-  //       'Failed to fetch Instagram user data',
-  //       error,
-  //     );
-  //   }
-  // }
-
-  //// Tiktok
+  // Tiktok
   private stateStore = new Map<string, { codeVerifier: string }>();
 
-  // Логика для получения URL для авторизации через TikTok
   async loginWithTiktok(): Promise<{
     url: string;
     csrfToken: string;
   }> {
-    const csrfState = Math.random().toString(36).substring(2); // Случайное состояние
+    const csrfState = Math.random().toString(36).substring(2);
     const { codeVerifier, codeChallenge } = await this.generatePKCE();
 
     // Сохраняем state и code_verifier
@@ -370,18 +311,15 @@ export class AuthService {
   }
 
   private async generatePKCE() {
-    const codeVerifier = crypto.randomBytes(32).toString('base64url'); // Генерация случайного code_verifier
+    const codeVerifier = crypto.randomBytes(32).toString('base64url');
     const codeChallenge = crypto
       .createHash('sha256')
       .update(codeVerifier)
-      .digest('base64url'); // Генерация code_challenge с использованием SHA-256
+      .digest('base64url');
     return { codeVerifier, codeChallenge };
   }
 
-  // Обработка callback от TikTok и получение токенов
   async handleTiktokCallback(code: string, state: string) {
-    console.log(code, state, this.stateStore);
-
     const tokenUrl = 'https://open.tiktokapis.com/v2/oauth/token/';
 
     const clientId = this.configService.get<string>('TIKTOK_CLIENT_ID');
@@ -404,32 +342,70 @@ export class AuthService {
         },
       });
 
-      return response.data; // Возвращает access_token и user_id
+      if (!response.data) {
+        throw new NotFoundException(
+          'Invalid response from TikTok API: missing open_id',
+        );
+      }
+
+      return await this.registerOrLoginTikTok(response.data.open_id);
     } catch (error) {
       console.error('Error exchanging code for token:', error);
       throw new Error('Failed to exchange code for access token');
     }
   }
 
-  // Получение информации о пользователе TikTok
-  async getTiktokUser(accessToken: string): Promise<any> {
-    const userInfoUrl =
-      'https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name';
-
-    try {
-      const response = await axios.get(userInfoUrl, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        params: {
-          fields: 'id,username,avatar,nickname', // Указываем нужные поля
-        },
+  async registerOrLoginTikTok(open_id: string): Promise<AuthTokens> {
+    const existingUserByOpenId =
+      await this.userRepository.getOneByOpenId(open_id);
+    if (existingUserByOpenId) {
+      const { access, refresh } = await this.generateTokens({
+        userId: existingUserByOpenId.id,
       });
 
-      return response.data; // Возвращаем данные пользователя
-    } catch (error) {
-      console.error('Error fetching user info:', error);
-      throw new BadRequestException('Failed to fetch TikTok user data');
+      await this.userRefreshTokenRepository.save({
+        userId: existingUserByOpenId.id,
+        token: refresh.token,
+        expiresAt: refresh.expiresAt,
+      });
+
+      return {
+        access: {
+          token: access.token,
+          expiresAt: access.expiresAt,
+        },
+        refresh: {
+          token: refresh.token,
+          expiresAt: refresh.expiresAt,
+        },
+      };
     }
+
+    const newUser = await this.userRepository.createUserByOpenId(
+      'qwerty@gmail.com',
+      'qwerty',
+      open_id,
+    );
+
+    const { access, refresh } = await this.generateTokens({
+      userId: newUser.id,
+    });
+
+    await this.userRefreshTokenRepository.save({
+      userId: newUser.id,
+      token: refresh.token,
+      expiresAt: refresh.expiresAt,
+    });
+
+    return {
+      access: {
+        token: access.token,
+        expiresAt: access.expiresAt,
+      },
+      refresh: {
+        token: refresh.token,
+        expiresAt: refresh.expiresAt,
+      },
+    };
   }
 }

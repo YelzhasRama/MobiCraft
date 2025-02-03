@@ -45,6 +45,14 @@ export class UserEntity {
   password: string;
 
   @Column({
+    name: 'open_id',
+    type: 'text',
+    unique: true,
+    nullable: true, // Делаем необязательным
+  })
+  openId: string;
+
+  @Column({
     name: 'role',
     type: 'enum',
     enum: UserRole,

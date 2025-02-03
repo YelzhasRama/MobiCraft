@@ -32,6 +32,16 @@ export class UsersRepository extends Repository<UserEntity> {
     return this.save(user);
   }
 
+  async createUserByOpenId(email: string, password: string, openId: string) {
+    const payload = {
+      email: email,
+      password: password,
+      openId: openId,
+    };
+    const user = this.create(payload);
+    return this.save(user);
+  }
+
   async findWithRelations(): Promise<UserEntity[]> {
     return this.find({ relations: ['categories', 'portfolios', 'orders'] });
   }
@@ -60,6 +70,13 @@ export class UsersRepository extends Repository<UserEntity> {
   async findUserById(id: number): Promise<UserEntity | null> {
     return this.findOne({
       where: { id },
+      relations: ['profileImage.staticObject'],
+    });
+  }
+
+  async getOneByOpenId(openId: string): Promise<UserEntity | null> {
+    return this.findOne({
+      where: { openId },
       relations: ['profileImage.staticObject'],
     });
   }

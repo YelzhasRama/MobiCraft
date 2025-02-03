@@ -92,43 +92,13 @@ export class AuthController {
     });
   }
 
-  // @Post('instagram-login')
-  // @Redirect() // NestJS автоматически выполняет редирект
-  // async getInstagramLoginUrl() {
-  //   const instagramLoginUrl = await this.authService.loginWithInstagram();
-  //   return { url: instagramLoginUrl }; // Указываем URL для редиректа
-  // }
-  //
-  // @Post('instagram/callback')
-  // async handleInstagramCallback(@Query('code') code: string) {
-  //   console.log(code);
-  //   if (!code) {
-  //     throw new BadRequestException('Authorization code is missing');
-  //   }
-  //
-  //   // Обрабатываем callback и возвращаем токен или ошибку
-  //   return await this.authService.handleInstagramCallback(code);
-  // }
-  //
-  // @Get('instagram/user')
-  // async getInstagramUser(@Query('accessToken') accessToken: string) {
-  //   console.log(accessToken);
-  //   if (!accessToken) {
-  //     throw new BadRequestException('Access token is required');
-  //   }
-  //
-  //   return await this.authService.getInstagramUser(accessToken);
-  // }
-
   // TikTok
-
   @Get('tiktok-login')
   async getTiktokLoginUrl() {
     const tiktokLoginUrl = await this.authService.loginWithTiktok();
-    return tiktokLoginUrl; // Возвращаем URL для авторизации
+    return tiktokLoginUrl;
   }
 
-  // Callback после авторизации
   @Get('tiktok/callback')
   async handleTiktokCallback(
     @Query('code') code: string,
@@ -137,21 +107,8 @@ export class AuthController {
     if (!code) {
       throw new BadRequestException('Authorization code is missing');
     }
+
     const tokens = await this.authService.handleTiktokCallback(code, state);
-
-    // TODO: надо что-то сделать с токенами, скорее всего передать фронту каким-то образом или записать в базу
-    console.log(tokens);
     return tokens;
-  }
-
-  // Получение данных пользователя TikTok
-  @Get('tiktok/user')
-  async getTiktokUser(@Query('accessToken') accessToken: string) {
-    if (!accessToken) {
-      throw new BadRequestException('Access token is required');
-    }
-
-    const user = await this.authService.getTiktokUser(accessToken);
-    return user;
   }
 }
