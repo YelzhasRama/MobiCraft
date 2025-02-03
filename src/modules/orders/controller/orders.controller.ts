@@ -76,6 +76,12 @@ export class OrdersController {
   }
 
   @UseGuards(UserAccessJwtGuard)
+  @Get('/order/:id')
+  async findOneDetailedOrder(@Param('id') orderId: number) {
+    return await this.ordersService.findOne(orderId);
+  }
+
+  @UseGuards(UserAccessJwtGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.ordersService.update(+id, updateOrderDto);

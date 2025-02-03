@@ -46,7 +46,12 @@ export class UsersRepository extends Repository<UserEntity> {
     return this.find({ relations: ['categories', 'portfolios', 'orders'] });
   }
 
-  findByTypeAndCityAndName({ city, search, perPage, page }: GetAllMobilographsQuery) {
+  findByTypeAndCityAndName({
+    city,
+    search,
+    perPage,
+    page,
+  }: GetAllMobilographsQuery) {
     const queryBuilder = this.createQueryBuilder('mobi')
       .leftJoinAndSelect('mobi.categories', 'categories')
       .where('mobi.role = :role', { role: UserRole.MOBILOGRAPH });
@@ -58,7 +63,9 @@ export class UsersRepository extends Repository<UserEntity> {
 
     // 🔍 Фильтрация по имени (search)
     if (search) {
-      queryBuilder.andWhere('mobi.name ILIKE :search', { search: `%${search}%` });
+      queryBuilder.andWhere('mobi.name ILIKE :search', {
+        search: `%${search}%`,
+      });
     }
 
     // Пагинация
@@ -70,7 +77,7 @@ export class UsersRepository extends Repository<UserEntity> {
   async findUserById(id: number): Promise<UserEntity | null> {
     return this.findOne({
       where: { id },
-      relations: ['profileImage.staticObject'],
+      relations: ['profileImage.staticObject', 'categories'],
     });
   }
 

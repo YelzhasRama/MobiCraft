@@ -34,7 +34,7 @@ export class OrdersService {
 
   // Получение заказа по ID
   async findOne(id: number): Promise<OrderEntity | null> {
-    return this.ordersRepository.findOrderById(id);
+    return await this.ordersRepository.findOrderById(id);
   }
 
   async update(

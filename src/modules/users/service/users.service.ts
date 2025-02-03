@@ -27,9 +27,14 @@ export class UsersService {
     return [sanitizedMobilographs, total];
   }
 
-  async findOne(id: number): Promise<UserEntity | null> {
-    return this.usersRepository.findUserById(id);
+  async findOne(id: number): Promise<Partial<UserEntity> | null> {
+    const user = await this.usersRepository.findUserById(id);
+    if (!user) return null;
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
+
 
   async updateEmailAndPassword(
     id: number,
