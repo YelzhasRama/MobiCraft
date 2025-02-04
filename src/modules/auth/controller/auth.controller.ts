@@ -111,4 +111,24 @@ export class AuthController {
     const tokens = await this.authService.handleTiktokCallback(code, state);
     return tokens;
   }
+
+  // Google
+  @Get('google-login')
+  async getGoogleLoginUrl() {
+    const googleLoginUrl = await this.authService.loginWithGoogle();
+    return googleLoginUrl;
+  }
+
+  @Get('google/callback')
+  async handleGoogleCallback(
+    @Query('code') code: string,
+    @Query('state') state: string,
+  ) {
+    if (!code) {
+      throw new BadRequestException('Authorization code is missing');
+    }
+
+    const tokens = await this.authService.handleGoogleCallback(code, state);
+    return tokens;
+  }
 }

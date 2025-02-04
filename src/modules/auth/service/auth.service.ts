@@ -24,13 +24,14 @@ import { UpdateProfileBody } from '../bodies/update-profile.body';
 import axios from 'axios';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import * as jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 
 dayjs.extend(utc);
 
 @Injectable()
 export class AuthService {
   authConfig = getAuthConfig();
-  // instaConfig = getInstagramAuthConfig();
 
   constructor(
     private readonly userRefreshTokenRepository: AuthRepository,
@@ -277,7 +278,7 @@ export class AuthService {
     await this.userRepository.verifyUserById(user.id);
   }
 
-  // Tiktok
+  // TIKTOK
   private stateStore = new Map<string, { codeVerifier: string }>();
 
   async loginWithTiktok(): Promise<{
@@ -381,8 +382,145 @@ export class AuthService {
       };
     }
 
+    const email = 'qwerty@gmail.com'; // основной email пользователя
+    const uniqueEmail = `${email.split('@')[0]}-${uuidv4()}@${email.split('@')[1]}`;
+
     const newUser = await this.userRepository.createUserByOpenId(
-      'qwerty@gmail.com',
+      uniqueEmail,
+      'qwerty',
+      open_id,
+    );
+
+    const { access, refresh } = await this.generateTokens({
+      userId: newUser.id,
+    });
+
+    await this.userRefreshTokenRepository.save({
+      userId: newUser.id,
+      token: refresh.token,
+      expiresAt: refresh.expiresAt,
+    });
+
+    return {
+      access: {
+        token: access.token,
+        expiresAt: access.expiresAt,
+      },
+      refresh: {
+        token: refresh.token,
+        expiresAt: refresh.expiresAt,
+      },
+    };
+  }
+
+  // GOOGLE
+  private stateGoogleStore = new Map<string, { codeVerifier: string }>();
+
+  async loginWithGoogle(): Promise<{
+    url: string;
+    csrfToken: string;
+  }> {
+    const csrfState = Math.random().toString(36).substring(2);
+    const { codeVerifier, codeChallenge } = await this.generatePKCE();
+
+    // Сохраняем state и code_verifier
+    this.stateGoogleStore.set(csrfState, { codeVerifier });
+
+    const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    const redirectUrl = this.configService.get<string>('GOOGLE_REDIRECT_URL');
+    const scope = 'openid email profile';
+
+    const BASE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
+
+    const url = new URL(BASE_URL);
+
+    url.searchParams.append('client_id', clientId);
+    url.searchParams.append('redirect_uri', redirectUrl);
+    url.searchParams.append('response_type', 'code');
+    url.searchParams.append('scope', scope);
+    url.searchParams.append('state', csrfState);
+
+    return {
+      url: url.toString(),
+      csrfToken: csrfState,
+    };
+  }
+
+  async handleGoogleCallback(code: string, state: string) {
+    const tokenUrl = 'https://oauth2.googleapis.com/token';
+
+    const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
+    const redirectUrl = this.configService.get<string>('GOOGLE_REDIRECT_URL');
+
+    try {
+      const params = new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUrl,
+        code: decodeURI(code),
+      });
+
+      const response = await axios.post(tokenUrl, params.toString(), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Cache-Control': 'no-cache',
+        },
+      });
+
+      if (!response.data) {
+        throw new NotFoundException(
+          'Invalid response from TikTok API: missing open_id',
+        );
+      }
+
+      const idToken = response.data.id_token;
+      if (!idToken) {
+        throw new NotFoundException('Id_token not found in the response');
+      }
+
+      const decodeToken = jwt.decode(idToken) as { sub: string };
+      const openId = decodeToken.sub + '';
+
+      return await this.registerOrLoginGoogle(openId);
+    } catch (error) {
+      console.error('Error exchanging code for token:', error);
+      throw new Error('Failed to exchange code for access token');
+    }
+  }
+
+  async registerOrLoginGoogle(open_id: string): Promise<AuthTokens> {
+    const existingUserByOpenId =
+      await this.userRepository.getOneByOpenId(open_id);
+    if (existingUserByOpenId) {
+      const { access, refresh } = await this.generateTokens({
+        userId: existingUserByOpenId.id,
+      });
+
+      await this.userRefreshTokenRepository.save({
+        userId: existingUserByOpenId.id,
+        token: refresh.token,
+        expiresAt: refresh.expiresAt,
+      });
+
+      return {
+        access: {
+          token: access.token,
+          expiresAt: access.expiresAt,
+        },
+        refresh: {
+          token: refresh.token,
+          expiresAt: refresh.expiresAt,
+        },
+      };
+    }
+
+    const email = 'qwerty@gmail.com'; // основной email пользователя
+    const uniqueEmail = `${email.split('@')[0]}-${uuidv4()}@${email.split('@')[1]}`;
+
+    const newUser = await this.userRepository.createUserByOpenId(
+      uniqueEmail,
       'qwerty',
       open_id,
     );
